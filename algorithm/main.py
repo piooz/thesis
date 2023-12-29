@@ -2,7 +2,7 @@ import numpy as np
 import chen_liu as cl
 
 # Generate a time series with outliers.
-y = np.random.normal(0, 1, 100)
+y = np.random.normal(10, 1, 100)
 y[10] = 10
 y[40] = -20
 y[80] = 10
