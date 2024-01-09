@@ -1,4 +1,6 @@
 import numpy as np
+from logger import logging
+
 
 def arma2ma(ar, ma, lag_max):
     ar = ar.tolist() if isinstance(ar, np.ndarray) else ar
@@ -18,9 +20,9 @@ def arma2ma(ar, ma, lag_max):
     q = len(ma)
     m = int(lag_max)
 
-    print(ar, ma)
+    logging.debug(ar, ma)
     if m <= 0:
-        raise ValueError("Invalid value of lag_max")
+        raise ValueError('Invalid value of lag_max')
 
     psi = np.zeros(m)
     for i in range(m):
@@ -31,7 +33,8 @@ def arma2ma(ar, ma, lag_max):
 
     return psi
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     ar = np.array([])
     ma = np.array([0.73344])
-    print(arma2ma(ar,ma,300))
+    logging.warn(arma2ma(ar, ma, 300))
