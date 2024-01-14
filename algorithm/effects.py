@@ -14,6 +14,7 @@ def ao_effect(n, ind, w=1):
 
 
 def tc_effect(n, ind, w=1, delta=0.7):
+    logging.debug(f'w: {w}')
     result = np.zeros(n)
     for i in range(0, n - ind):
         result[i + ind] = (delta**i) * w
@@ -29,10 +30,9 @@ def ls_effect(n, ind, w=1):
 
 def io_effect(n, ind, ar, ma, w=1):
     arr = arma2ma(ar, ma, n - ind)
-    logging.debug(arr)
-    arr = arr / arr.max()
     arr = np.concatenate([np.zeros(ind), arr])
-    return arr * -w
+    arr[ind] = 1
+    return arr * w
 
 
 def sls_effect(n, ind, freq, w=1):
@@ -46,6 +46,7 @@ def sls_effect(n, ind, freq, w=1):
 def parse_row(row: Series, n: int, delta, model: tsa.ARIMAResults):
     ind = row['ind']
     w = row['coefhat']
+    logging.debug(f'{row}')
     ar = [1]
     ma = [1]
 
@@ -54,13 +55,21 @@ def parse_row(row: Series, n: int, delta, model: tsa.ARIMAResults):
 
     match row['type']:
         case 'TC':
-            return tc_effect(n, ind, w, delta)
+            effect = tc_effect(n, ind, w, delta)
+            logging.debug(f'coefhat: {w} effect TC: {effect} ')
+            return effect
         case 'IO':
-            return io_effect(n, ind, ar, ma, w)
+            effect = io_effect(n, ind, ar, ma, w)
+            logging.debug(f'coefhat: {w} effect IO: {effect} ')
+            return effect
         case 'AO':
-            return ao_effect(n, ind, w)
+            effect = ao_effect(n, ind, w)
+            logging.debug(f'coefhat: {w} effect AO: {effect} ')
+            return effect
         case 'LS':
-            return ls_effect(n, ind, w)
+            effect = ls_effect(n, ind, w)
+            logging.debug(f'coefhat: {w} effect LS: {effect} ')
+            return effect
         case _:
             return 0
 
@@ -69,11 +78,12 @@ def combine_effects(
     data, n, fit: tsa.ARIMAResults | None = None, freq=12, delta=0.7
 ):
 
+    logging.debug(f'input: {data}')
     result = np.zeros(n)
     for _, row in data.iterrows():
         arr = parse_row(row, n, delta, fit)
         result += arr
-    logging.debug(f'result: {len(result)}')
+    logging.debug(f'result: {result}')
     return result
 
 
@@ -91,13 +101,19 @@ def get_dataframe_effects(
 
 
 if __name__ == '__main__':
-    y = sm.datasets.nile.data.load_pandas().data['volume']
-    # plt.plot(y)
+    # y = sm.datasets.nile.data.load_pandas().data['volume']
+
+    y = np.repeat(10, 100)
+    y[40] = -20
+    logging.debug(y)
+
     model = tsa.ARIMA(y, order=(1, 0, 1))
     fit = model.fit()
     ar = fit.arparams
     ma = fit.maparams
-    out = io_effect(100, 10, ar, ma, -390)
+    logging.debug(fit.summary())
+    out = io_effect(100, 40, ar, ma, 1)
+    logging.debug(out)
     plt.plot(out)
     # plt.plot(abs(arma2ma(ar,ma,100)))
     # plt.plot(arma2ma([0.8610783],[-0.5176954],10))

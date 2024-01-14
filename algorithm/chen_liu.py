@@ -2,39 +2,22 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
-import statsmodels.api as sm
-import matplotlib.pyplot as plt
 from effects import combine_effects, get_dataframe_effects
 import xii
 import re
 from logger import logging
 
 
-def restructure_dataframe(df, df_hats, cval):
-    # Create a new DataFrame to store the restructured data
-    result_df = DataFrame()
-
-    # Iterate over rows of the original DataFrame
-    for index, row in df.iterrows():
-        ind = index
-        # Find the column with the maximum absolute value
-        max_col = row.abs().idxmax()
-        max_value = row[max_col]
-
-        # Find the corresponding value from the second DataFrame
-        coefhat = df_hats.loc[ind, max_col]
-
-        # Append the data to the result DataFrame
-        result_df = result_df._append(
-            {
-                'ind': ind,
-                'type': max_col,
-                'tstat': max_value,
-                'coefhat': coefhat,
-            },
-            ignore_index=True,
-        )
-    return DataFrame(result_df[result_df['tstat'].abs() >= cval])
+def calc_cval(n):
+    cval = 3
+    if cval == 0:
+        if n < 50:
+            cval = 3
+        elif n > 450:
+            cval = 4
+        else:
+            cval = 3 + 0.0025 * (n - 50)
+    return cval
 
 
 def extract_values(row, cval=3):
@@ -66,38 +49,34 @@ def locate_outliers_inner_loop(fit, cval):
     outliers = stats.apply(extract_values, cval=cval, axis=1)
     outliers = outliers.dropna()
     logging.debug(stats)
-    return outliers
+    return (outliers, stats)
 
 
-def stage1(fit, values, cval=0):
+def stage1(fit, values, cval=0.0):
     n = len(values)
     if cval == 0:
-        if n < 50:
-            cval = 3
-        elif n > 450:
-            cval = 4
-        else:
-            cval = 3 + 0.0025 * (n - 50)
-
-    plt.plot(values)
+        cval = calc_cval(n)
 
     result = None
     effect = None
+    stats = None
     for _ in range(1):
-        result = locate_outliers_inner_loop(fit, cval)
+        result, stats = locate_outliers_inner_loop(fit, cval)
         result['ind'] = result.index
         effect = combine_effects(result, n, fit)
-        logging.debug(effect)
-        # plt.plot(effect)
-        plt.plot(values - effect)
+        logging.debug(f'calculated effect: {effect}')
 
-    return result, effect
+    return (result, stats)
 
 
-def stage2(result: DataFrame, fit, y, cval=3.0):
+def stage23(result: DataFrame, fit, y, cval=0.0):
     """
-    using en-masse method, whatever it is.
+    using en-masse method
     """
+    if cval == 0:
+        n = len(y)
+        cval = calc_cval(n)
+
     result_copy = result.copy()
     for _ in range(1):
         if len(result_copy) == 0:
@@ -131,16 +110,25 @@ def stage2(result: DataFrame, fit, y, cval=3.0):
 
         result_copy = result_copy.drop(row_numbers)
         logging.debug(result_copy)
-    return result_copy
+
+    effect = combine_effects(result_copy, len(y), fit)
+    model = tsa.ARIMA(y - effect, order=(1, 0, 1))
+    fit = model.fit()
+    return result_copy, effect
 
 
-def chen_liu(y):
+def chen_liu(y, cval=0):
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
-        y = sm.datasets.nile.data.load_pandas().data['volume']
+        # y = sm.datasets.nile.data.load_pandas().data['volume']
         model = tsa.ARIMA(y, order=(1, 0, 1))
         fit = model.fit()
-        result, effect1 = stage1(fit, y, 2.2)
+        logging.debug(fit.summary())
+        (result, stage1stats) = stage1(fit, y, cval)
         logging.debug(result)
-        stage2(result, fit, y, 2.2)
+        (result, effect) = stage23(result, fit, y, cval)
+        logging.debug(result)
+        logging.debug(effect)
+        logging.debug(fit.summary())
+        return result, effect, fit, stage1stats

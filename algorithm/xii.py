@@ -27,20 +27,15 @@ def filter_process(x, f):
     return np.array(y)
 
 
-def calc_aoxy(fit, pi):
+def _calc_aoxy(fit, pi):
     """
-    Works good
+    Calculate statics for tstat function (probobly you wouldn't need that)
     """
     n = len(fit.resid)
     zero_padding = np.zeros(n - 1)
 
-    # Concatenate 'resid' and zero-padding
     x = np.concatenate((fit.resid, zero_padding))
-
-    # Reverse the 'picoefs'
     picoefs_reversed = np.flip(pi)
-
-    # Perform convolution
     ao_xy = np.convolve(x, picoefs_reversed, mode='valid')
 
     logging.debug(f'aoxy\n{ao_xy}')
@@ -56,7 +51,7 @@ def tstat(fit):
     ma = fit.maparams
     pi = np.append([1], arma2ma(-ma, -ar, len(fit.resid) - 1))
 
-    aoxy, xxinv = calc_aoxy(fit, pi)
+    aoxy, xxinv = _calc_aoxy(fit, pi)
     aoxy_rev = np.flip(aoxy)
 
     df = DataFrame()
