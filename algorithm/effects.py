@@ -3,8 +3,8 @@ from pandas import DataFrame, Series
 import statsmodels.tsa.arima.model as tsa
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from arma2ma import arma2ma
-from logger import logging
+from . import arma2ma
+from .logger import logging
 
 
 def ao_effect(n, ind, w=1):

@@ -2,10 +2,10 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
-from effects import combine_effects, get_dataframe_effects
-import xii
+from .effects import combine_effects, get_dataframe_effects
+from . import xii
 import re
-from logger import logging
+from .logger import logging
 
 
 def calc_cval(n):
@@ -65,6 +65,7 @@ def stage1(fit, values, cval=0.0):
         result['ind'] = result.index
         effect = combine_effects(result, n, fit)
         logging.debug(f'calculated effect: {effect}')
+        logging.debug(f'calculated result: {result}')
 
     return (result, stats)
 
@@ -117,18 +118,19 @@ def stage23(result: DataFrame, fit, y, cval=0.0):
     return result_copy, effect
 
 
-def chen_liu(y, cval=0):
+def chen_liu(y, cval=0.0):
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
         # y = sm.datasets.nile.data.load_pandas().data['volume']
         model = tsa.ARIMA(y, order=(1, 0, 1))
         fit = model.fit()
+        effect = np.zeros(len(y))
         logging.debug(fit.summary())
         (result, stage1stats) = stage1(fit, y, cval)
-        logging.debug(result)
-        (result, effect) = stage23(result, fit, y, cval)
-        logging.debug(result)
-        logging.debug(effect)
+        if not result.empty:
+            (result, effect) = stage23(result, fit, y, cval)
+            logging.debug(result)
+            logging.debug(effect)
         logging.debug(fit.summary())
         return result, effect, fit, stage1stats

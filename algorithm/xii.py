@@ -4,8 +4,8 @@ from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
-from arma2ma import arma2ma
-from logger import logging
+from .arma2ma import arma2ma
+from .logger import logging
 
 
 def diff_inv(array):

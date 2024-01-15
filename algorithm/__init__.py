@@ -1,4 +1,4 @@
-import arma2ma
-import chen_liu
-import effects
-import xii
+from .arma2ma import arma2ma
+from .chen_liu import *
+from .effects import *
+from .xii import *

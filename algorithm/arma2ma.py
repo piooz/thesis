@@ -1,5 +1,5 @@
 import numpy as np
-from logger import logging
+from .logger import logging
 
 
 def arma2ma(ar, ma, lag_max):
