@@ -17,11 +17,11 @@ locate.outliers <- function(resid, pars, cval = 3.5,
   # t-statistics (and coefficents) at every time point for the 
   # selected types of outliers
 
-  tmp <- outliers.tstatistics(pars = pars, resid = resid, 
+  tmp <- outliers.tstatistics.ArimaPars(pars = pars, resid = resid, 
     types = types, sigma = sigma, delta = delta) #n.start = n.start
 
   ind <- which(abs(tmp[,,"tstat",drop=FALSE]) > cval, arr.ind = TRUE)
-  mo <- data.frame(tstati
+  mo <- data.frame("tstati"
     factor(gsub("^(.*)tstats$", "\\1", dimnames(tmp)[[2]][ind[,2]]),
       levels = c("IO", "AO", "LS", "TC", "SLS")), ind[,1],
     tmp[,,"coefhat",drop=FALSE][ind], tmp[,,"tstat",drop=FALSE][ind])
@@ -484,3 +484,5 @@ locate.outliers.oloop <- function(y, fit, types = c("AO", "LS", "TC"),
   list(fit = list(coefs = coef(fit), pars = pars,
     resid = resid, n = n), outliers = moall, iter = iter)
 }
+
+lskadfj <- locate.outliers(aa$residuals, pars)

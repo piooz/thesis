@@ -1,10 +1,10 @@
-import {  Box, Container, createTheme, CssBaseline, Divider, Grid, IconButton, List, Paper, styled, ThemeProvider, Toolbar, Typography } from '@mui/material';
+import { Box, Container, createTheme, CssBaseline, Divider, IconButton, List, styled, ThemeProvider, Toolbar, Typography } from '@mui/material';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import MuiDrawer from '@mui/material/Drawer';
 import React, { ReactNode } from 'react';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import { mainListItems, secondaryListItems } from '../listItems';
+import { mainListItems } from './listItems';
 
 const drawerWidth = 240;
 
@@ -23,7 +23,7 @@ interface AppBarProps extends MuiAppBarProps {
 }
 
 interface LayoutProps {
-  children: ReactNode;
+    children: ReactNode;
 }
 
 const AppBar = styled(MuiAppBar, {
@@ -73,11 +73,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 const defaultTheme = createTheme();
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(true);
 
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
+    const toggleDrawer = () => {
+        setOpen(!open);
+    };
 
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -108,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             noWrap
                             sx={{ flexGrow: 1 }}
                         >
-                            Dashboard
+                            Time Series Sandbox
                         </Typography>
                     </Toolbar>
                 </AppBar>
@@ -129,7 +129,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     <List component="nav">
                         {mainListItems}
                         <Divider sx={{ my: 1 }} />
-                        {secondaryListItems}
                     </List>
                 </Drawer>
                 <Box

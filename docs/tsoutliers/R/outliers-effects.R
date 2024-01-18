@@ -173,3 +173,5 @@ outliers.effects <- function(mo, n, weights = FALSE, delta = 0.7,
 
   oeff
 }
+
+io <- outliers.effects(mo,n,pars = list(arcoefs=0.9426, macoefs=-1))

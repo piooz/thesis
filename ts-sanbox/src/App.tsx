@@ -1,19 +1,25 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import logo from './logo.svg';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Home from "./pages/Home"
+import Analyze from "./pages/Analyze"
+import Effects from "./pages/Effects"
+import History from "./pages/History"
+import Layout from './components/Layout';
 
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route index element={<Home />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/effects" element={<Home />} />
-                <Route path="/analyze" element={<Home />} />
-            </Routes>
-        </BrowserRouter>
+        <Layout>
+            <Router>
+                <Routes>
+                    <Route index element={<Home />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/effects" element={<Effects />} />
+                    <Route path="/analyze" element={<Analyze />} />
+                    <Route path="/history" element={<History />} />
+                </Routes>
+            </Router>
+        </Layout>
     );
 }
 
