@@ -1,6 +1,6 @@
 from datetime import datetime
 import logging
-from typing import BinaryIO
+from typing import BinaryIO, List
 from uuid import uuid4
 from fastapi import FastAPI, UploadFile
 from pandas import DataFrame
@@ -97,8 +97,8 @@ def read_column_binary(file: BinaryIO, have_header: bool, col: int):
     return data
 
 
-@app.post('/test/')
-async def test(
+@app.post('/analyze/')
+async def analyze_file(
     file: UploadFile = None,
     cval: float = 2,
     have_header: bool = False,
@@ -116,10 +116,55 @@ async def test(
         data=prepare_data(result, effect.tolist(), data),
         raport=prepare_raport(execution_time, fit, stage1stats),
     )
-
     return a
 
 
-@app.post('/upload_file/')
-async def upload_file(file: UploadFile):
-    return {'Hello': 'World'}
+@app.get('/combine_effect/')
+async def generate_effect() -> list[float]:
+    al.ao_effect
+    return None
+    pass
+
+
+@app.get('/ao_effect/')
+async def generate_ao(len: int, start_point: int, w: float) -> list[float]:
+    array = al.ao_effect(len, start_point, w)
+    return array.tolist()
+
+
+@app.get('/ls_effect/')
+async def generate_ls(len: int, start_point: int, w: float) -> list[float]:
+    array = al.ls_effect(len, start_point, w)
+    return array.tolist()
+
+
+@app.get('/tc_effect/')
+async def generate_tc(
+    len: int, start_point: int, w: float, delta: float = 0.7
+) -> list[float]:
+    array = al.tc_effect(len, start_point, w, delta)
+    return array.tolist()
+
+
+@app.post('/io_effect/')
+async def generate_io(
+    len: int,
+    start_point: int,
+    w: float,
+    arparams: List[float],
+    maparams: List[float],
+) -> list[float]:
+    logging.debug(arparams)
+    array = al.io_effect(
+        len,
+        start_point,
+        arparams,
+        maparams,
+        w,
+    )
+    return array.tolist()
+
+
+@app.post('/check_health/')
+async def check_health():
+    return {'status': 'healthy'}

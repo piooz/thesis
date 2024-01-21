@@ -29,9 +29,8 @@ def ls_effect(n, ind, w=1):
 
 
 def io_effect(n, ind, ar, ma, w=1):
-    arr = arma2ma(ar, ma, n - ind)
-    arr = np.concatenate([np.zeros(ind), arr])
-    arr[ind] = 1
+    arr = arma2ma(ar, ma, n - ind - 1)
+    arr = np.concatenate([np.zeros(ind), [1], arr])
     return arr * w
 
 
