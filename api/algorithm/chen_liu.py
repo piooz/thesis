@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
+import statsmodels as sm
 from .effects import combine_effects, get_dataframe_effects
 from . import xii
 import re
@@ -122,7 +123,6 @@ def chen_liu(y, cval=0.0):
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
-        # y = sm.datasets.nile.data.load_pandas().data['volume']
         model = tsa.ARIMA(y, order=(1, 0, 1))
         fit = model.fit()
         effect = np.zeros(len(y))

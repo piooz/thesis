@@ -1,16 +1,75 @@
 ---
 author: Piotr Żuchowski
-titlepage: false
-lang: pl
-documentclass: report
-classoption:
-    - landspace
 links-as-notes: true
 header-includes: |
-    \usepackage[a4paper]{geometry}
+    \usepackage{setspace}
+    \usepackage{fancyhdr}
+    \usepackage{titlesec}
+    \usepackage{enumitem}
+    \usepackage{hyperref}
+    \usepackage[polish]{babel}
+    \usepackage{pdfpages}
+    \usepackage{graphicx}
+    \usepackage{float}
+    \usepackage[normalem]{ulem}
+    \usepackage[nottoc]{tocbibind}
+
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{helvet}
+    \renewcommand{\familydefault}{\sfdefault}
+    \usepackage{amsmath}
+    \usepackage{chngcntr}
+    \counterwithin{figure}{section}
+    \usepackage{amsmath}
+    \usepackage{tocloft}
+    \usepackage{nomencl}
+    \makenomenclature
+    \newcommand{\listequationsname}{Spis równań}
+    \newlistof{myequations}{equ}{\listequationsname}
+    \newcommand{\myequations}[1]{%
+        \addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}\par
+    }
+
+    \usepackage{caption}
+    \captionsetup[figure]{name=Rys.}
+
+
+    \usepackage{listings}
+    \lstset{
+        language=Python, % Wybierz język programowania
+        basicstyle=\ttfamily, % Styl podstawowy
+        numbers=left, % Numery linii po lewej stronie
+        numberstyle=\tiny\color{gray}, % Styl numerów linii
+        frame=single, % Rama wokół kodu
+        breaklines=true, % Automatyczne łamanie linii
+        captionpos=b, % Pozycja podpisu
+        showstringspaces=false, % Nie pokazuj spacji w napisach
+    }
+
+
+    \usepackage{lmodern}
+    \renewcommand*\familydefault{\sfdefault}
+
+    \pagestyle{fancy}
+    \fancyhead{}
+    \fancyhead[LO,RE]{}
+    \fancyfoot{}
+    \fancyfoot[LE,RO]{\thepage}
+    \fancyfoot[LO,RE]{}
+    \renewcommand{\headrulewidth}{0pt}
+
+    \setlength{\parindent}{0.5cm}
+    \setlist[itemize]{label=•,itemsep=0pt}
+
+    \titleformat{\section}{\normalfont\fontsize{16}{18}\bfseries}{\thesection}{1em}{}
+    \titleformat{\subsection}{\normalfont\fontsize{14}{16}\bfseries}{\thesubsection}{1em}{}
+    \titleformat{\subsubsection}{\normalfont\fontsize{13}{15}\bfseries}{\thesubsubsection}{1em}{}
+
+    \newcommand{\MMp}[1]{\marginpar{\textcolor{blue}{\textbf{MM}: \footnotesize #1}}}
+    \newcommand{\MM}[1]{\textcolor{blue}{\textbf{MM}: #1}}
 ---
 
-\tableofcontents
 
 # Sekcja
 
@@ -50,6 +109,14 @@ Duraj [@duraj2021outlier]
 
 Duraj [@wykrywanie-wyjatkow]
 
+```bash
+echo "slieal" | base64
+
+```
+
+```{.python caption="Python Code" label=lst:example}
+print("Hello, World!")
+````
 
 
 # Bibliografia

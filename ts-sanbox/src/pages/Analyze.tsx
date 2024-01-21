@@ -1,8 +1,5 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import FileUpload from '../components/FileUpload';
-import ResultChart from '../components/ResultChart';
-import {data} from '../mock/analysis-result'
+import { data } from '../mock/analysis-result'
 
 
 const Analyze = () => {
@@ -10,7 +7,7 @@ const Analyze = () => {
 
     return (
         <div>
-            <ResultChart data={data}/>
+            <FileUpload />
         </div>
     );
 }

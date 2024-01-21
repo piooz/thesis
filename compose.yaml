@@ -14,10 +14,10 @@ services:
   #       - action: rebuild
   #         path: ./ts-sandbox/package.json
 
-  backend:
-    build: ./api
-    ports:
-      - "8080:80"
+  # backend:
+  #   build: ./api
+  #   ports:
+  #     - "8080:80"
 
   mongodb_container:
     image: mongo:latest
