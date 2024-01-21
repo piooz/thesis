@@ -8,10 +8,12 @@ from statsmodels.iolib.table import csv
 from .. import algorithm as al
 from .api_model_lib import *
 from motor.motor_asyncio import AsyncIOMotorClient
-import statsmodels as sm
+
+# import statsmodels as sm
 from fastapi.middleware.cors import CORSMiddleware
 import csv
 import codecs
+import time
 
 app = FastAPI()
 
@@ -79,27 +81,40 @@ def prepare_raport(time, fit, stage1stats: DataFrame) -> Raport:
     return raport
 
 
-def read_first_column_binary(file: BinaryIO):
-    csvReader = csv.reader(codecs.iterdecode(file, 'utf-8'))
+def read_column_binary(file: BinaryIO, have_header: bool, col: int):
+    csv_reader = csv.reader(codecs.iterdecode(file, 'utf-8'))
     data = []
-    for row in csvReader:
+    if have_header:
+        next(csv_reader)
+
+    for row in csv_reader:
         logging.debug(row)
-        data.append(float(row[0]))
+        if col < len(row):
+            data.append(float(row[col]))
+        else:
+            logging.warning(f'Row {row} does not have column {col}. Skipping.')
+
     return data
 
 
 @app.post('/test/')
-async def test(file: UploadFile = None, cval: float = 2) -> AnalyzeResult:
-    # data = read_first_column_binary(file.file)
-    data = sm.datasets.nile.data.load_pandas().data['volume']
+async def test(
+    file: UploadFile = None,
+    cval: float = 2,
+    have_header: bool = False,
+    col: int = 0,
+) -> AnalyzeResult:
+    data = read_column_binary(file.file, have_header, col)
 
+    start_time = time.time()
     (result, effect, fit, stage1stats) = al.chen_liu(data, cval)
+    execution_time = time.time() - start_time
     logging.debug(stage1stats)
     a = AnalyzeResult(
         id=uuid4(),
         time=datetime.now(),
         data=prepare_data(result, effect.tolist(), data),
-        raport=prepare_raport(123, fit, stage1stats),
+        raport=prepare_raport(execution_time, fit, stage1stats),
     )
 
     return a
