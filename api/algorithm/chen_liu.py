@@ -7,6 +7,7 @@ from .effects import combine_effects, get_dataframe_effects
 from . import xii
 import re
 from .logger import logging
+import pmdarima
 
 
 def calc_cval(n):
@@ -25,7 +26,6 @@ def extract_values(row, cval=3):
     types = ['IO', 'AO', 'LS', 'TC']
     t_values = [row[f'{type}tstat'] for type in types]
 
-    # Find types where absolute value of t is greater than 3
     valid_types = [
         types[i] for i in range(len(types)) if abs(t_values[i]) > cval
     ]
@@ -33,7 +33,6 @@ def extract_values(row, cval=3):
     if not valid_types:
         return pd.Series({'type': None, 'coefhat': None, 'tstat': None})
 
-    # Find the type with the maximum absolute value of t
     max_type = max(valid_types, key=lambda t: abs(row[f'{t}tstat']))
 
     return pd.Series(
@@ -45,11 +44,13 @@ def extract_values(row, cval=3):
     )
 
 
-def locate_outliers_inner_loop(fit, cval):
+def locate_outliers_inner_loop(fit, cval, result):
     stats = xii.tstat(fit)
     outliers = stats.apply(extract_values, cval=cval, axis=1)
     outliers = outliers.dropna()
     logging.debug(stats)
+    if result is not None:
+        result += outliers
     return (outliers, stats)
 
 
@@ -60,20 +61,25 @@ def stage1(fit, values, cval=0.0):
 
     result = None
     effect = None
+    values_copy = values.copy()
     stats = None
-    for _ in range(1):
-        result, stats = locate_outliers_inner_loop(fit, cval)
+    for _ in range(2):
+
+        result, stats = locate_outliers_inner_loop(fit, cval, result)
         result['ind'] = result.index
         effect = combine_effects(result, n, fit)
         logging.debug(f'calculated effect: {effect}')
         logging.debug(f'calculated result: {result}')
+
+        model = tsa.ARIMA(values_copy - effect, order=(1, 0, 1))
+        fit = model.fit()
 
     return (result, stats)
 
 
 def stage23(result: DataFrame, fit, y, cval=0.0):
     """
-    using en-masse method
+    using en-masse method to check effect on model
     """
     if cval == 0:
         n = len(y)
