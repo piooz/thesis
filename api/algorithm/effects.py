@@ -1,8 +1,6 @@
 import numpy as np
 from pandas import DataFrame, Series
 import statsmodels.tsa.arima.model as tsa
-import statsmodels.api as sm
-import matplotlib.pyplot as plt
 from . import arma2ma
 from .logger import logging
 
@@ -100,20 +98,4 @@ def get_dataframe_effects(
 
 
 if __name__ == '__main__':
-    # y = sm.datasets.nile.data.load_pandas().data['volume']
-
-    y = np.repeat(10, 100)
-    y[40] = -20
-    logging.debug(y)
-
-    model = tsa.ARIMA(y, order=(1, 0, 1))
-    fit = model.fit()
-    ar = fit.arparams
-    ma = fit.maparams
-    logging.debug(fit.summary())
-    out = io_effect(100, 40, ar, ma, 1)
-    logging.debug(out)
-    plt.plot(out)
-    # plt.plot(abs(arma2ma(ar,ma,100)))
-    # plt.plot(arma2ma([0.8610783],[-0.5176954],10))
-    plt.show()
+    pass

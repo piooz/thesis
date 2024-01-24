@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   # frontend:
   #   build: ./ts-sanbox
@@ -9,37 +9,15 @@ services:
   #       - action: sync
   #         path: ./ts-sandbox
   #         target: /usr/src/app
-  #         ignore: 
+  #         ignore:
   #           - ./ts-sandobx/node-modules
   #       - action: rebuild
   #         path: ./ts-sandbox/package.json
 
-  # backend:
-  #   build: ./api
-  #   ports:
-  #     - "8080:80"
-
-  mongodb_container:
-    image: mongo:latest
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+  backend:
+    build: ./api
     ports:
-      - 27017:27017
+      - "8080:80"
     volumes:
-      - mongodb_data_container:/data/db
-
-  mongo-express:
-    image: mongo-express
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=false
-      - ME_CONFIG_MONGODB_AUTH_DATABASE=admin
-      - ME_CONFIG_MONGODB_AUTH_USERNAME=root
-      - ME_CONFIG_MONGODB_AUTH_PASSWORD=rootpassword
-    ports:
-      - "8888:8081"
-
-volumes:
-  mongodb_data_container:
+      - ./api/algorithm:/code/algorithm
+      - ./api/app:/code/app

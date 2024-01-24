@@ -1,0 +1,42 @@
+# Exclude common Python files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude development and testing directories
+tests/
+docs/
+*.md
+*.rst
+
+# Exclude version control files
+.git/
+.gitignore
+.gitattributes
+
+# Exclude local development files
+*.env
+*.vscode/
+.idea/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude build and distribution directories
+build/
+dist/
+
+# Exclude system and temporary files
+*.DS_Store
+Thumbs.db
+*.swp
+*.tmp
+
+# Exclude editor-specific files
+*.sublime*
+*.vscode*
+*.idea*
+
+# Exclude Python virtual environment
+venv/

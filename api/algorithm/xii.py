@@ -3,7 +3,6 @@ import pandas as pd
 from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
 import statsmodels.api as sm
-import matplotlib.pyplot as plt
 from .arma2ma import arma2ma
 from .logger import logging
 
@@ -90,19 +89,4 @@ def tstat(fit):
 
 
 if __name__ == '__main__':
-    with pd.option_context(
-        'display.max_rows',
-        None,
-        'display.max_columns',
-        None,
-    ):
-        y = sm.datasets.get_rdataset('Nile').raw_data['value']
-        df = DataFrame(y)
-        model = tsa.ARIMA(y, order=(1, 0, 1))
-        fit = model.fit()
-        dupa = tstat(fit)
-        plt.plot(dupa['IOtstat'])
-        plt.plot(dupa['AOtstat'])
-        plt.plot(dupa['LStstat'])
-        plt.plot(dupa['TCtstat'])
-        plt.show()
+    pass

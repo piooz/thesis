@@ -1,122 +1,72 @@
 ---
 author: Piotr Żuchowski
 links-as-notes: true
-header-includes: |
-    \usepackage{setspace}
-    \usepackage{fancyhdr}
-    \usepackage{titlesec}
-    \usepackage{enumitem}
-    \usepackage{hyperref}
-    \usepackage[polish]{babel}
-    \usepackage{pdfpages}
-    \usepackage{graphicx}
-    \usepackage{float}
-    \usepackage[normalem]{ulem}
-    \usepackage[nottoc]{tocbibind}
-
-    \usepackage[T1]{fontenc}
-    \usepackage[utf8]{inputenc}
-    \usepackage{helvet}
-    \renewcommand{\familydefault}{\sfdefault}
-    \usepackage{amsmath}
-    \usepackage{chngcntr}
-    \counterwithin{figure}{section}
-    \usepackage{amsmath}
-    \usepackage{tocloft}
-    \usepackage{nomencl}
-    \makenomenclature
-    \newcommand{\listequationsname}{Spis równań}
-    \newlistof{myequations}{equ}{\listequationsname}
-    \newcommand{\myequations}[1]{%
-        \addcontentsline{equ}{myequations}{\protect\numberline{\theequation}#1}\par
-    }
-
-    \usepackage{caption}
-    \captionsetup[figure]{name=Rys.}
-
-
-    \usepackage{listings}
-    \lstset{
-        language=Python, % Wybierz język programowania
-        basicstyle=\ttfamily, % Styl podstawowy
-        numbers=left, % Numery linii po lewej stronie
-        numberstyle=\tiny\color{gray}, % Styl numerów linii
-        frame=single, % Rama wokół kodu
-        breaklines=true, % Automatyczne łamanie linii
-        captionpos=b, % Pozycja podpisu
-        showstringspaces=false, % Nie pokazuj spacji w napisach
-    }
-
-
-    \usepackage{lmodern}
-    \renewcommand*\familydefault{\sfdefault}
-
-    \pagestyle{fancy}
-    \fancyhead{}
-    \fancyhead[LO,RE]{}
-    \fancyfoot{}
-    \fancyfoot[LE,RO]{\thepage}
-    \fancyfoot[LO,RE]{}
-    \renewcommand{\headrulewidth}{0pt}
-
-    \setlength{\parindent}{0.5cm}
-    \setlist[itemize]{label=•,itemsep=0pt}
-
-    \titleformat{\section}{\normalfont\fontsize{16}{18}\bfseries}{\thesection}{1em}{}
-    \titleformat{\subsection}{\normalfont\fontsize{14}{16}\bfseries}{\thesubsection}{1em}{}
-    \titleformat{\subsubsection}{\normalfont\fontsize{13}{15}\bfseries}{\thesubsubsection}{1em}{}
-
-    \newcommand{\MMp}[1]{\marginpar{\textcolor{blue}{\textbf{MM}: \footnotesize #1}}}
-    \newcommand{\MM}[1]{\textcolor{blue}{\textbf{MM}: #1}}
+geometry: "top=2.5cm,bottom=2.5cm,inner=3cm,outer=2cm, headheight=1.25cm, footskip=1.25cm"
+pappersize: a4
+fontsize: 12pt
+documentclass: article
+classoption:
+    - twoside
+linestretch: 1.2
 ---
 
 
-# Sekcja
+# Wstęp
 
-## podsekcja
+# Cel i zakres pracy
 
-Lorem ipsum dolor sit amet, officia excepteur ex fugiat reprehenderit enim labore culpa sint ad nisi Lorem pariatur mollit ex esse exercitation amet. Nisi anim cupidatat excepteur officia. Reprehenderit nostrud nostrud ipsum Lorem est aliquip amet voluptate voluptate dolor minim nulla est proident. Nostrud officia pariatur ut officia. Sit irure elit esse ea nulla sunt ex occaecat reprehenderit commodo officia dolor Lorem duis laboris cupidatat officia voluptate. Culpa proident adipisicing id nulla nisi laboris ex in Lorem sunt duis officia eiusmod. Aliqua reprehenderit commodo ex non excepteur duis sunt velit enim. Voluptate laboris sint cupidatat ullamco ut ea consectetur et est culpa et culpa duis.
+# Przegląd literatury i analiza istniejących rozwiązań
 
-wiecej w pracy chen,[@chen1993joint]
+Rozdział ten stanowi techniczne wprowadzenie do zagadnienia, oparte na analizie literatury i istniejących rozwiązań inżynierskich.
+Analiza literatury i istniejących rozwiązań stanowi istotny etap procesu projektowego, umożliwiający lepsze zrozumienie kontekstu danego problemu oraz identyfikację potencjalnych obszarów doskonalenia. Niniejszy rozdział skupia się na przeglądzie literatury związanej z tematyką pracy inżynierskiej oraz analizie istniejących rozwiązań, mającej na celu dostarczenie solidnej podstawy teoretycznej i technologicznej dla dalszych etapów badawczych.
+W tym rozdziale zostaną dogłębnie poruszone teoretyczne kwestie związane z tematem pracy.  
 
-wiecej w pracy chen,[@box1975intervention]
+## Analiza szeregów czasowych i model ARIMA
 
-wiecej w pracy chen,[@chomatek2017multiobjective]
 
-wiecej w pracy chen,[@docker-docs]
+### Istota analizy szeregu czasowego
 
-wiecej w pracy chen,[@python-docs]
+Szereg czasowym nazywamy uporządkowany zestaw danych, gdzie każda wartość jest przypisana do określonego momentu czasowego.
+Składa się z punktów danych, zwykle zbieranych w regularnych odstępach czasowych, co pozwala na analizę zmian w czasie.
+W ramach szeregów czasowych można identyfikować różne wzorce, trendy, sezonowe wahania oraz nieregularne zdarzenia.
+W kontekście informatyki szeregi czasowe są szeroko stosowane w analizie danych i prognozowaniu.
+Mogą obejmować dane z różnych dziedzin, takich jak gospodarka, nauki przyrodnicze, zdrowie, finanse czy technologia.
+Szeregi czasowe są używane do monitorowania i prognozowania zmian,co pozwala wspierać procesy decyzyjne
+Przykłady zastosowań szeregów czasowych w informatyce to prognozowanie ruchu w sieciach komputerowych, monitorowanie wydajności systemów, analiza logów serwerów, predykcja awarii sprzętu czy prognozowanie trendów w danych ekonomicznych.
+Szeregi czasowe stanowią istotny element analizy danych w informatyce, pomagając w zrozumieniu dynamiki zjawisk w czasie.
 
-wiecej w pracy chen,[@numpy-docs]
+### Model ARIMA
 
-wiecej w pracy chen,[@pandas-docs]
+W czasach przed opracowaniem modelu ARIMA prognozowanie wymagały posiadania wiedzy na temat matematycznego modelu procesu.
+W praktyce badawczej struktura szeregu czasowego bywa często niejednoznaczna, a wariancja składnika losowego jest znaczna.
+Pomimo tych trudności istnieje potrzeba nie tylko odkrywania ukrytych wzorców, ale również generowania prognoz.
+W tym celu została opracowana metodyka ARIMA, rozwinięta przez Boxa i Jenkinsa (1976), która zdobyła znaczną popularność w różnych dziedzinach.
 
-wiecej w pracy chen,[@statsmodels-docs]
+Model ARIMA *AutoRegressive Integrated Moving Average* to model używany do analizy i prognozowania przyszłych wartości w oparciu o historyczne dane.
 
-wiecej w pracy chen,[@grafana-docs]
+Nazwa ARIMA opisuje trzy główne składowe tego modelu: AutoRegressive (**AR**), Integrated (**I**) i Moving Average (**MA**).
 
-wiecej w pracy chen,[@thakkar2016survey]
 
-wiecej w pracy chen,[@akouemo2016probabilistic]
+- AutoRegressive (AR): Ta część modelu odnosi się do autoregresji, czyli zależności między bieżącą wartością szeregu a jego wcześniejszymi wartościami. Model AR opiera się na przekonaniu, że bieżąca wartość szeregu czasowego jest funkcją jej poprzednich wartości, co uwzględnia wpływ autokorelacji.
 
-wiecej w pracy chen,[@chandola2008comparative]
+\begin{equation}
+x(t) = \phi_1 \cdot x(t-1) + \phi_2 \cdot x(t-2) + \ldots + \phi_p \cdot x(t-p) + a(t)
+\end{equation}
 
-wiecej w pracy chen,[@talk]
+- Integrated (I): Integracja dotyczy transformacji szeregu czasowego w celu uzyskania stacjonarności. Stacjonarność oznacza, że statystyki szeregu nie zmieniają się w czasie, co ułatwia analizę. Proces integracji polega na różniczkowaniu danych, czyli odejmowaniu od każdej wartości szeregu jej poprzedniej wartości.
 
-ksiażka [@kaiser1999seasonal]
+- Moving Average (MA): Ta część modelu odnosi się do średniej ruchomej, czyli uwzględnienia pewnej liczby poprzednich składników losowych w modelu. Model MA zakłada, że bieżąca wartość szeregu czasowego jest sumą wcześniejszych błędów losowych.
 
-Duraj [@duraj2021outlier]
+\begin{equation}
+x(t) = b_1 \cdot a(t-1) + b_2 \cdot a(t-2) + \ldots + b_q \cdot a(t-q) + \varepsilon(t)
+\end{equation}
 
-Duraj [@wykrywanie-wyjatkow]
+## Wykrywanie wyjątków
 
-```bash
-echo "slieal" | base64
+## Podział wyjątków
 
-```
+## Efekt Maskowania
 
-```{.python caption="Python Code" label=lst:example}
-print("Hello, World!")
-````
-
+## Konteneryzacja aplikacji
 
 # Bibliografia

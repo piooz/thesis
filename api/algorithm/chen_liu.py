@@ -2,12 +2,10 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 import statsmodels.tsa.arima.model as tsa
-import statsmodels as sm
 from .effects import combine_effects, get_dataframe_effects
 from . import xii
 import re
 from .logger import logging
-import pmdarima
 
 
 def calc_cval(n):

@@ -1,6 +1,5 @@
+from .. import algorithm as a
 import logging
-
-import algorithm as a
 
 arparams = [1, 0, 0, 1, -1]
 maparams = [-0.6, 0, 0, -0.6, 0.36]

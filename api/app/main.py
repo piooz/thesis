@@ -168,3 +168,7 @@ async def generate_io(
 @app.post('/check_health/')
 async def check_health():
     return {'status': 'healthy'}
+
+
+if __name__ == '__main__':
+    print('hello')
