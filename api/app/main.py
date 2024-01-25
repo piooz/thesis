@@ -9,7 +9,6 @@ from .. import algorithm as al
 from .api_model_lib import *
 from motor.motor_asyncio import AsyncIOMotorClient
 
-# import statsmodels as sm
 from fastapi.middleware.cors import CORSMiddleware
 import csv
 import codecs
@@ -165,7 +164,7 @@ async def generate_io(
     return array.tolist()
 
 
-@app.post('/check_health/')
+@app.post('/health/')
 async def check_health():
     return {'status': 'healthy'}
 
