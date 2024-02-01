@@ -1,5 +1,6 @@
 from .. import algorithm as a
 import logging
+import statsmodels as sm
 
 arparams = [1, 0, 0, 1, -1]
 maparams = [-0.6, 0, 0, -0.6, 0.36]
@@ -29,6 +30,11 @@ def io_effect_test():
         assert round(e) == round(
             c
         ), f'io effect is not correct {calc == expected} output: {calc}, expected {expected} e:{e} c:{c}'
+
+
+def testDataset():
+
+    pass
 
 
 if __name__ == '__main__':
