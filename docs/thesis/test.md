@@ -41,11 +41,8 @@ S = (s,t)
 
 Z tego wynika, że charakterystyczną naturalną cechą strumieni jest szeregowość. Wartości nie są jedynym przedmiotem analizy, ale głównie ich kolejność i kontekst który zarysowują w czasie.
 
-Szeregi czasowe są używane do monitorowania i prognozowania zmian,co pozwala wspierać procesy decyzyjne
+Szeregi czasowe są używane do monitorowania i prognozowania zmian, co pozwala wspierać procesy decyzyjne w każdej dziedzinie biznesu.
 Mogą obejmować dane z różnych dziedzin, takich jak gospodarka, nauki przyrodnicze, zdrowie, finanse czy technologia.
-
-Przykłady zastosowań szeregów czasowych w informatyce to prognozowanie ruchu w sieciach komputerowych, monitorowanie wydajności systemów, analiza logów serwerów, predykcja awarii sprzętu czy prognozowanie trendów w danych ekonomicznych.
-
 
 ## Wykrywanie wyjątków w strumieniach danych
 
@@ -58,7 +55,8 @@ Proces czyszczenia danych stał się integralnym i fundamentalnym krokiem w proc
 
 Dzięki czyszczeniu analiza staję się dokładniejsza a modele lepiej spełniają swoją role w prognozowaniu kolejnych wartości. Podstawowym krokiem czyszczenia danych jest wykrywanie i usuwanie wyjątków z serii danych.
 
-Wyjątkiem nazywamy obserwację, której wartość znacząco różni się od innych wartości w losowej próbie z populacji. Określenie "znacząco różni" nie jest precyzyjnym określeniem. Kontekst każdej analizy jest wyjątkowy. W rozumieniu tej definicji, każda analiza ma za zadanie zdefiniować czym i jaka będzie znacząca różnica.
+Wyjątkiem
+: nazywamy obserwację, której wartość znacząco różni się od innych wartości w losowej próbie z populacji. Określenie "znacząco różni" nie jest precyzyjnym określeniem. Kontekst każdej analizy jest wyjątkowy. W rozumieniu tej definicji, każda analiza ma za zadanie zdefiniować czym i jaka będzie znacząca różnica.
 
 ## Efekt Maskowania
 
@@ -78,7 +76,7 @@ Podstawowym celem badań było przedstawienia procedury wykrywania wyjątków, k
 
 Dzięki precyzyjnemu zdefiniowaniu czterech różnych typów wyjątków, które pojawiały się w poprzednich badaniach, staje się możliwe pełniejsze zrozumienie ich wpływu na dane badawcze. Określenie obliczonego wpływu staje się kluczową podstawą do przeprowadzenia korekty parametrów modelu oraz umożliwia dalszą analizę.
 
-Przyjmijmy, że modelem będzie ARMA postaci:
+Poniższy przykład bazuję na modelu ARIMA postaci:
 
 \begin{equation}
 Y_t = \frac{\theta(B)}{\alpha(B)\phi(B)}
@@ -143,37 +141,103 @@ Następuję obliczenie efektów wykrytych wyjątków i usunięcie z serii danych
 Obliczana jest ponownie $\tau_j$ korzystając ze wzoru: $\hat{\tau}_j = \hat{\omega}_j / std(\omega)$. Jeśli statystyka jest niższa niż wartość krytyczna $C$ wyjątek jest usuwany z listy potencjalnych. Pętla zostaję przerwana w przypadku braku wykrycia błędu lub przekroczenia liczby iteracji.
 Następuję kolejne dopasowanie modelu skorygowanej serii.
 
-#. Ostatnim etapem jest powtórzenie I i II fazy algorymu wykorzystując ponownie nowe parametry modelu z. W pierszej fazie nie koryguję parametrów. W 2 fazie $\hat{\omega}$ jest końcową wartością.
+#. Ostatnim etapem jest powtórzenie I i II fazy algorymu wykorzystując nowe parametry modelu: W I fazie nie koryguję parametrów. W II fazie $\hat{\omega}$ jest końcową wartością.
+
+## Wykrywanie wyjątków w systemach informatycznych
+
+Algorytm "Chen-Liu" nie jest jedynym algorytmem wykrywania wyjątków. Na przestrzeni lat postało wiele metod stworzonych w tym celu.
+Przykładami takich algorytmów są:
+
+- Isolation Forest
+: Jedna z najnowszych metod wykrywania wyjątków. Metoda polega na wykorzystaniu drzew binarnych do losowego podziału serii danych. Implementacja jest dostępna w wielu językach programoawnia tj Python, R i dostępna dla platformy Apache Spark. [@iforest]
+
+- Auto enkodery
+: Grupa algorytmów oparta na sztucznej inteligencji. Główna idea stojąca za autoenkoderami polega na nauczeniu się skompresowanego przedstawienia lub kodowania danych wejściowych. Anomalie są wykrywane poprzez pomiar błędu rekonstrukcji między wejściem a odtworzonym wyjściem.
+
+Istnieje dużo dziedzin gdzie wykrywanie wyjątków znalazło zastosowanie. Algorytmy są stosowanie w cyberbezpieczeństwie jako systemy **IDS** *(Intrusion Detection System)*. Takie systemy mogą bazować na sztucznej inteligencji lub działać na zasadzie data-miningu.
+
+![Przykładem systemu IDS jest Surikata](https://3.bp.blogspot.com/-mYFCDwWougw/U_B7IjW9w5I/AAAAAAAAAgs/5Wfa2OBU4hM/s1600/Custom1.PNG)
+
+Dzięki algorytmom, możliwe jest wykrywanie oszustw bankowych. Przykładem takich aplikacji jest "SEON".
+
+Wykrywanie wyjątków znalazło zastosowanie w systemach IOT, zarządzaniu infrastrukturą IT jak i mikro serwisów. Algorytmy stają się pomocne przy wykrywaniu usterek sprzętu. Wczesne wykrycie problemów z wydajnością systemów zwiększa jakość, efektywność i stabilność samego systemu jak i biznesu.
+
+Przykładem oprogramowania służącej do monitorowania zasobów aplikacji / klastra jest Grafana, która daję możliwość podglądu na żywo statystyk CPU, pamięci, transferu internetowego. Grafana udostępnia płatnym użytkownikom wykrywanie wyjątków w wybranych strumieniach i zintegrowanie z systemem powiadomień.[@grafana-docs]
+
+![Konfiguracja detekcji wyjątków w programie grafana](./img/grafana)
+
+Istnieją rozwiązania w postaci bibliotek. Sektorem, w którym wykrywanie wyjątków jest szeroko stosowane są media społecznościowe. Firmy takie jak Meta *(dawniej Facebook)* czy X *(dawniej Twitter)* udostępniają kod swoich bibliotek przeznaczone do analizy danych i  wykrywania wyjątków [@twitter-docs] [@prophet-docs].
+
+Popularnymi bibliotekami w języku python są scikit-learn i TODS. Zaletą bezpośredniego użycia metody jest elastyczność rozwiązania, jednak wymagają pracy specjalistów w dziedzinie analizy danych [@scikit-learn] [@Lai_Zha_Wang_Xu_Zhao_Kumar_Chen_Zumkhawaka_Wan_Martinez_Hu_2021].
+
+
+## Podsumowanie
+
+Analiza strumieni danych jest popularnym i prężnie rozwijanym tematem w obecnej stanie technologi informatycznych. Niewątpliwie algorytmy bazujące na sztucznej inteligencji otwierają kolejne kierunki rozwoju. Z tego powodu istnieje ryzyko wyparcia metod tradycyjnych na rzecz technologi uczenia
+maszynowego.
+Jednakże, przedstawiona metoda "Chen-Liu" wyróżnia się swoimi właściwościami, a wyniki w postaci klasyfikacji wykrywanych wyjątków, mogą wzbogacić analizę danych.
+
+Język Python jest jednym z najpopularniejszych języków w dziedzinie analizie danych, dlatego implementacja zaprojektowana dla tego języka, może być
+najbardziej dostrzeżona i jednocześnie najprzydatniejsza dla społeczności.
+
+
+\pagebreak
+
+# Metodologia i implementacja projektu
+
+Ten rozdziej opisuję szczegóły implementowanego rozwiązania. Zostaną poruszone dogłębnie aspekty techniczne i wykorzystanej technologii. Zostanie też przedstawiony proces implementacji jak i etap wdrożenia aplikacji.
+
+## Wymagania
+
+Wymagania odnośnie aplikacji możemy podzielić na funkcjonalne i niefunkcjonalne:
+
+Funkcjonalne:
+
+- Algorytm musi przedstawiać wynik analizy w formie listy wykrytych wyjątków i statystyk modelu.
+- Użytkownik może przetestować zbiór danych.
+- Rozwiązanie udostępnia możliwość przesłania serii danych do analizy w postaci pliku csv.
+- Użytkownik może prosić o wygenerowanie danego typu efektu.
+- Serwis daję możliwość połączenia efektów w jedno rozwiązanie.
+
+Niefunkcjonalne:
+
+- Wyjątki muszą być kategoryzowane.
+- serwis być odporna na znaczny ruch.
+- serwis przedstawia swój stan zdrowia.
+- serwis loguję kolejne kroki postępowania wg przyjętego formatu.
+- aplikacja musi być bezstanowa aby była lepiej skalowalna.
+
+
+## Wybór technologii
+
+Główną technologią użytą do implementacji algorytmu jak i usługi jest python. Python jest doskonałym narzędziem do szybkiego tworzenia aplikacji. Dodatkowo Python jest popularnym językiem w społeczności analityków danych.
 
 
 
-## Metody Wykrywania wyjątków
-Na przestrzeni lat postwało wiele metod wykrywania wyjątków.
+## Zastosowane narzędzia i technologie
 
-### Model ARIMA
+## Implementacja algorytmu
 
-W czasach przed opracowaniem modelu ARIMA prognozowanie wymagały posiadania wiedzy na temat matematycznego modelu procesu.
-W praktyce badawczej struktura szeregu czasowego bywa często niejednoznaczna, a wariancja składnika losowego jest znaczna.
-Pomimo tych trudności istnieje potrzeba nie tylko odkrywania ukrytych wzorców, ale również generowania prognoz.
-W tym celu została opracowana metodyka ARIMA, rozwinięta przez Boxa i Jenkinsa (1976), która zdobyła znaczną popularność w różnych dziedzinach.
+## Moduł REST
 
-Model ARIMA *AutoRegressive Integrated Moving Average* to model używany do analizy i prognozowania przyszłych wartości w oparciu o historyczne dane.
+## Chmura obliczeniowa
 
-Nazwa ARIMA opisuje trzy główne składowe tego modelu: AutoRegressive (**AR**), Integrated (**I**) i Moving Average (**MA**).
+## Docker
 
+## Wdrażanie aplikacji sieciowej
 
-- AutoRegressive (AR): Ta część modelu odnosi się do autoregresji, czyli zależności między bieżącą wartością szeregu a jego wcześniejszymi wartościami. Model AR opiera się na przekonaniu, że bieżąca wartość szeregu czasowego jest funkcją jej poprzednich wartości, co uwzględnia wpływ autokorelacji.
+## Testy aplikacji
 
-\begin{equation}
-x(t) = \phi_1 \cdot x(t-1) + \phi_2 \cdot x(t-2) + \ldots + \phi_p \cdot x(t-p) + a(t)
-\end{equation}
+\pagebreak
 
-- Integrated (I): Integracja dotyczy transformacji szeregu czasowego w celu uzyskania stacjonarności. Stacjonarność oznacza, że statystyki szeregu nie zmieniają się w czasie, co ułatwia analizę. Proces integracji polega na różniczkowaniu danych, czyli odejmowaniu od każdej wartości szeregu jej poprzedniej wartości.
+# Opis przeprowadzonych testów
 
-- Moving Average (MA): Ta część modelu odnosi się do średniej ruchomej, czyli uwzględnienia pewnej liczby poprzednich składników losowych w modelu. Model MA zakłada, że bieżąca wartość szeregu czasowego jest sumą wcześniejszych błędów losowych.
+## Pokrycie kodu
 
-\begin{equation}
-x(t) = b_1 \cdot a(t-1) + b_2 \cdot a(t-2) + \ldots + b_q \cdot a(t-q) + \varepsilon(t)
-\end{equation}
+## Lokalne testy aplikacji
+
+## Testy obciążeniowe wdrożenia
+
+\pagebreak
 
 # Bibliografia
