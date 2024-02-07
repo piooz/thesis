@@ -28,11 +28,13 @@ app.add_middleware(
 mongo_client = AsyncIOMotorClient()
 
 
-def prepare_data(result, effect: list[float], data: list[float]) -> list[Foo]:
+def prepare_data(
+    result, effect: list[float], data: list[float]
+) -> list[Entry]:
     ls = []
     for i in range(len(data)):
 
-        foo = Foo(
+        foo = Entry(
             index=i,
             origin=data[i],
             effect=effect[i],
@@ -118,13 +120,6 @@ async def analyze_file(
     return a
 
 
-@app.get('/combine_effect/')
-async def generate_effect() -> list[float]:
-    al.ao_effect
-    return None
-    pass
-
-
 @app.get('/ao_effect/')
 async def generate_ao(len: int, start_point: int, w: float) -> list[float]:
     array = al.ao_effect(len, start_point, w)
@@ -164,7 +159,7 @@ async def generate_io(
     return array.tolist()
 
 
-@app.post('/health/')
+@app.get('/health/')
 async def check_health():
     return {'status': 'healthy'}
 

@@ -21,7 +21,7 @@ class Fit(BaseModel):
     maparams: list[float]
 
 
-class Foo(BaseModel):
+class Entry(BaseModel):
     index: float
     origin: float
     effect: float
@@ -41,5 +41,5 @@ class Raport(BaseModel):
 class AnalyzeResult(BaseModel):
     id: UUID
     time: datetime
-    data: list[Foo]
+    data: list[Entry]
     raport: Raport
