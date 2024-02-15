@@ -52,7 +52,7 @@ def locate_outliers_inner_loop(fit, cval, result):
     return (outliers, stats)
 
 
-def stage1(fit, values, cval=0.0):
+def stage1(fit, values, cval=0.0, arima_order=(1, 0, 1)):
     n = len(values)
     if cval == 0:
         cval = calc_cval(n)
@@ -69,13 +69,13 @@ def stage1(fit, values, cval=0.0):
         logging.debug(f'calculated effect: {effect}')
         logging.debug(f'calculated result: {result}')
 
-        model = tsa.ARIMA(values_copy - effect, order=(1, 0, 1))
+        model = tsa.ARIMA(values_copy - effect, order=arima_order)
         fit = model.fit()
 
     return (result, stats)
 
 
-def stage23(result: DataFrame, fit, y, cval=0.0):
+def stage23(result: DataFrame, fit, y, cval=0.0, arima_order=(1, 0, 1)):
     """
     using en-masse method to check effect on model
     """
@@ -86,17 +86,20 @@ def stage23(result: DataFrame, fit, y, cval=0.0):
     result_copy = result.copy()
     for _ in range(1):
         if len(result_copy) == 0:
+            logging.info('No potential outliers quiting stage23')
             return
         regressors = get_dataframe_effects(result_copy, len(y), fit)
         logging.debug(result_copy)
+        logging.error(regressors)
 
-        model = tsa.ARIMA(y, order=(1, 0, 1), exog=regressors)
+        model = tsa.ARIMA(y, order=arima_order, exog=regressors)
         fit = model.fit()
         cov = fit.cov_params()
 
-        df = DataFrame()
+        da = {}
         for col in regressors.columns:
-            df[col] = [fit.params[col] / np.sqrt(cov.loc[col, col])]
+            da[col] = [fit.params[col] / np.sqrt(cov.loc[col, col])]
+        df = DataFrame(da)
 
         logging.debug(df)
 
@@ -118,23 +121,23 @@ def stage23(result: DataFrame, fit, y, cval=0.0):
         logging.debug(result_copy)
 
     effect = combine_effects(result_copy, len(y), fit)
-    model = tsa.ARIMA(y - effect, order=(1, 0, 1))
+    model = tsa.ARIMA(y - effect, order=arima_order)
     fit = model.fit()
     return result_copy, effect
 
 
-def chen_liu(y, cval=0.0):
+def chen_liu(y, cval=0.0, arima_order=(1, 0, 1)):
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
-        model = tsa.ARIMA(y, order=(1, 0, 1))
+        model = tsa.ARIMA(y, order=arima_order)
         fit = model.fit()
         effect = np.zeros(len(y))
         logging.debug(fit.summary())
         (result, stage1stats) = stage1(fit, y, cval)
         if not result.empty:
-            (result, effect) = stage23(result, fit, y, cval)
+            (result, effect) = stage23(result, fit, y, cval, arima_order)
             logging.debug(result)
             logging.debug(effect)
-        logging.debug(fit.summary())
-        return result, effect, fit, stage1stats
+        newfit = tsa.ARIMA(y - effect, order=arima_order).fit()
+        return result, effect, newfit, stage1stats

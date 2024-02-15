@@ -1,4 +1,10 @@
 #!/bin/bash
 
 
-ls "$1" | entr pandoc --csl ./iso690-numeric-pl_Mendeley.csl --citeproc --bibliography=biblio.bib --pdf-engine tectonic /_ -o thesis.pdf
+ls "$1" | entr -c pandoc \
+  --citeproc \
+  --bibliography=biblio.bib \
+  --csl ./csl/computing-surveys.csl \
+  --pdf-engine tectonic \
+  /_ \
+  -o thesis.pdf

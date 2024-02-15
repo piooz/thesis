@@ -1,5 +1,5 @@
 import numpy as np
-from pandas import DataFrame, Series
+from pandas import DataFrame, Series, pandas
 import statsmodels.tsa.arima.model as tsa
 from . import arma2ma
 from .logger import logging
@@ -12,7 +12,7 @@ def ao_effect(n, ind, w=1):
 
 
 def tc_effect(n, ind, w=1, delta=0.7):
-    logging.debug(f'w: {w}')
+    # logging.debug(f'w: {w}')
     result = np.zeros(n)
     for i in range(0, n - ind):
         result[i + ind] = (delta**i) * w
@@ -43,7 +43,7 @@ def sls_effect(n, ind, freq, w=1):
 def parse_row(row: Series, n: int, delta, model: tsa.ARIMAResults):
     ind = row['ind']
     w = row['coefhat']
-    logging.debug(f'{row}')
+    # logging.debug(f'{row}')
     ar = [1]
     ma = [1]
 
@@ -53,19 +53,19 @@ def parse_row(row: Series, n: int, delta, model: tsa.ARIMAResults):
     match row['type']:
         case 'TC':
             effect = tc_effect(n, ind, w, delta)
-            logging.debug(f'coefhat: {w} effect TC: {effect} ')
+            # logging.debug(f'coefhat: {w} effect TC: {effect} ')
             return effect
         case 'IO':
             effect = io_effect(n, ind, ar, ma, w)
-            logging.debug(f'coefhat: {w} effect IO: {effect} ')
+            # logging.debug(f'coefhat: {w} effect IO: {effect} ')
             return effect
         case 'AO':
             effect = ao_effect(n, ind, w)
-            logging.debug(f'coefhat: {w} effect AO: {effect} ')
+            # logging.debug(f'coefhat: {w} effect AO: {effect} ')
             return effect
         case 'LS':
             effect = ls_effect(n, ind, w)
-            logging.debug(f'coefhat: {w} effect LS: {effect} ')
+            # logging.debug(f'coefhat: {w} effect LS: {effect} ')
             return effect
         case _:
             return 0
@@ -75,24 +75,28 @@ def combine_effects(
     data, n, fit: tsa.ARIMAResults | None = None, freq=12, delta=0.7
 ):
 
-    logging.debug(f'input: {data}')
+    # logging.debug(f'input: {data}')
     result = np.zeros(n)
     for _, row in data.iterrows():
         arr = parse_row(row, n, delta, fit)
         result += arr
-    logging.debug(f'result: {result}')
+    # logging.debug(f'result: {result}')
     return result
 
 
 def get_dataframe_effects(
     data, n, fit: tsa.ARIMAResults | None = None, freq=12, delta=0.7
 ):
-    df = DataFrame()
+    di = {}
+
     for i, row in data.iterrows():
         row['coefhat'] = 1
         arr = parse_row(row, n, delta, fit)
         colname = f'{row["type"]}_{i}'
-        df[colname] = arr
+        di[colname] = arr
+        # df = pandas.concat([df, DataFrame(arr, columns=[colname])])
+
+    df = DataFrame(di)
 
     return df
 

@@ -20,8 +20,8 @@ def arma2ma(ar, ma, lag_max):
     q = len(ma)
     m = int(lag_max)
 
-    logging.debug(f'ar: {ar}')
-    logging.debug(f'ma: {ma}')
+    # logging.debug(f'ar: {ar}')
+    # logging.debug(f'ma: {ma}')
     if m <= 0:
         raise ValueError('Invalid value of lag_max')
 
@@ -38,4 +38,4 @@ def arma2ma(ar, ma, lag_max):
 if __name__ == '__main__':
     ar = np.array(0.9426)
     ma = np.array(-1)
-    logging.warn(arma2ma(ar, ma, 100))
+    # logging.warn(arma2ma(ar, ma, 100))

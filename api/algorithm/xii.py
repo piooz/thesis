@@ -37,9 +37,9 @@ def _calc_aoxy(fit, pi):
     picoefs_reversed = np.flip(pi)
     ao_xy = np.convolve(x, picoefs_reversed, mode='valid')
 
-    logging.debug(f'aoxy\n{ao_xy}')
+    # logging.debug(f'aoxy\n{ao_xy}')
     xxinv = np.flip(1 / np.cumsum(pi**2))
-    logging.debug(f'xxinv\n{xxinv}')
+    # logging.debug(f'xxinv\n{xxinv}')
     return ao_xy, xxinv
 
 
@@ -75,8 +75,8 @@ def tstat(fit):
 
     xy = np.flip(filter_process(aoxy_rev, [0.7]))
     dinvf = filter_process(pi, [0.7])
-    logging.debug(xy)
-    logging.debug(dinvf)
+    # logging.debug(xy)
+    # logging.debug(dinvf)
     xxinv4 = np.flip(1 / np.cumsum(dinvf**2))
     coef4 = xy * xxinv4
     tstat4 = coef4 / (sigma * np.sqrt(xxinv4))
@@ -84,7 +84,7 @@ def tstat(fit):
     df['TCcoef'] = coef4
     df['TCtstat'] = tstat4
 
-    logging.debug(df)
+    # logging.debug(df)
     return df
 
 

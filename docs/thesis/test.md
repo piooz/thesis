@@ -8,9 +8,22 @@ documentclass: article
 classoption:
     - twoside
 linestretch: 1.2
+toc: true
 lang: pl
+numbersections: true
+header-includes: |
+  \usepackage{float}
+  \let\origfigure\figure
+  \let\endorigfigure\endfigure
+  \renewenvironment{figure}[1][2] {
+      \expandafter\origfigure\expandafter[H]
+  } {
+      \endorigfigure
+  }
+
 ---
 
+\newpage
 
 # Wstęp
 
@@ -18,9 +31,20 @@ lang: pl
 
 # Cel i zakres pracy
 
+Celem pracy dyplomowej jest stworzenie implementacji algorytmu wykrywania wyjątków i poprawy dopasowania modelu.
+Dodatkowym zadaniem poza zaimplementowaniem algorytmu jest stworzenie publicznej usługi internetowej która umożliwi analizę przesłanych danych. Usługa internetowa pozwoli na stworzenie abstrakcji nad zaimplementowanym algorytmem, dzięki czemu projekt może zostać zintegrowany z dowolną aplikacją lub innym serwisem
+obsługujący zwykłą komunikację http.
+
+Implementacja zarówno biblioteki algorytmu jak i serwisu ma zostać wykonana technologi Python.
+
+Implementacja algorytmu powinna być wydajna lub porównywalna z innymi podobnymi algorytmami. Ponieważ algorytm zaproponowany przez Chen i Liu rozwiązuję problemy z detekcją wyjątków, określeniem typu wyjątku, sprawdzeniem wpływu na model szeregu czasowego i ostateczna poprawa modelu dopuszczalne
+jest aby czas obliczeń był dłuższy on innych.
+
+Usługa internetowa musi być dostępna nieprzerwanie, dlatego celem niefunkcjonalnym jest stworzenie usługi wykorzystując usługi chmurowe. Wdrożenie w chmurze będzie wiązało dodatkowym dostosowaniem aplikacji.
+
 \newpage
 
-# Przegląd literatury i analiza rozwiązań
+# Przegląd literatury i analiza istniejących rozwiązań
 
 Rozdział ten stanowi techniczne wprowadzenie do zagadnienia, oparte na analizie literatury i istniejących rozwiązań inżynierskich.
 Analiza literatury i istniejących rozwiązań stanowi istotny etap procesu projektowego, umożliwiający lepsze zrozumienie kontekstu danego problemu oraz identyfikację potencjalnych obszarów doskonalenia. Rozdział skupia się na przeglądzie literatury związanej z tematyką pracy inżynierskiej oraz analizie istniejących rozwiązań, mającej na celu dostarczenie solidnej podstawy teoretycznej i technologicznej dla dalszych etapów badawczych.
@@ -66,9 +90,9 @@ Maskowaniem
 : wyjątku nazywamy zjawisko nie wykrycia wyjątku, z powodu wpływu większej anomalii na statystykę testową, która determinuję wyjątek.
 
 Efekt maskowania może wystąpić w sytuacji, gdy analiza, z góry narzuca wykrycie i usunięcie ustalonej liczby wyjątków. Maskowanie wystąpi w przypadku nieoszacowania liczby wyjątków. Ciekawym przypadkiem jest sytuacja odwrotna, gdy założenie liczby wyjątków przeszacowuję faktyczną liczbę
-wyjątków. Dochodzi do przeciwnego efektu zwanego **swamping**, kiedy element bliskiego skupiska zostaje rozpoznany jako wyjątek
+wyjątków. Dochodzi do przeciwnego efektu zwanego **swamping**, kiedy element bliskiego skupiska zostaje rozpoznany jako wyjątek.
 
-![Efekt Maskowania: Wyjątek $x2$ jest bardziej odstający, $x2$ może zamaskować wykrycie wyjątku $x1$](./img/masking.svg){width=70%}
+![Efekt Maskowania: Wyjątek $x2$ jest bardziej odstający, $x2$ może zamaskować wykrycie wyjątku $x1$.\label{mylabel}](./img/masking.svg){width=70%}
 
 ## Algorytm Chen-Liu
 Praca Chung Chen i Lon-Mu Liu *"Joint Estimation of Model Parameters and Outlier Effects in Time Series"* dokumentuję algorytm analizy strumienia danych.
@@ -130,7 +154,7 @@ SLS: \xi (B) = 1/S \quad \quad \quad S = 1 + B + ... + B^{s-1}
 ![Porównanie efektów różnych wyjątków a) AO, b) LS, c) TC, d) IO ARIMA(0,1,1)(0,1,1)](./img/effects.svg){width=95%}
 
 
-Algorytm postępowania jest iteracyjny i jest podzielony na 3 oddzielne etapy. Przedstawione poniżej kroki algorytmu są uproszczone. Dokładny opis procedury można znaleźć w oryginalnej pracy[@dupa]:
+Algorytm postępowania jest iteracyjny i jest podzielony na 3 oddzielne etapy. Przedstawione poniżej kroki algorytmu są uproszczone. Dokładny opis procedury można znaleźć w oryginalnej pracy[@chen1993joint]:
 
 #. Obejmuję wykrycie potencjalnych wyjątków. W tym celu dokonuję się dopasowania przyjętego modelu do serii danych i obliczenia odchyleń dla każdego punktu.
 W następnym kroku, dla każdego punktu i szukanego typu obliczane są statystyki $\tau$ i $\omega$. Jeśli statystyka $| \tau |$ w czasie $t$ jest większa niż przyjęta wartość krytyczna $C$ oznacza, że w tym punkcie wystąpił wyjątek.
@@ -367,11 +391,14 @@ Jak wcześniej zostało wspomniane konteneryzacja aplikacji jest ważnym aspekte
 
 ```dockerfile
 FROM python:3.11.6-alpine
+RUN apk --no-cache add curl
 COPY ./requirements.txt /code/requirements.txt
 RUN pip install -r /code/requirements.txt
 COPY . /code
 EXPOSE 80
 CMD ["uvicorn", "code.app.main:app", "--host", "0.0.0.0", "--port", "80"]
+HEALTHCHECK --interval=10s --timeout=3s \
+  CMD curl -f http://localhost/health || exit 1
 ```
 
 Warto zwrócić uwagę na rozdzielenie pliku requirements.txt od pozostałego kodu aplikacji. W takim ustawieniu warstw podczas budowania możliwe jest zaoszczędzenie czasu poprzez wykorzystanie mechanizmu cachowania warstw.
@@ -379,8 +406,9 @@ Plik `requirements.txt` jest plikiem zawierającym wszystkie wymagane zależnoś
 
 Jeżeli jednak zmiany w aplikacji nie dotyczą zewnętrznych bibliotek mechanizm wypychania obrazów i budowania wykorzysta z pamięci cache z poprzednich akcji.
 
-
 Wykorzystanie polecenia `EXPOSE 80` nie wpływa na budowany obraz aplikacji. Jest jedynie dobrą praktyką która dokumentuję porty na których aplikacja nasłuchuję.
+
+Dobrą praktyką tworzenia obrazów jest zdefiniowanie testu `HEALTHCHECK`. Może się okazać przydatną informacją o stanie aplikacji dla systemów orkiestracji takich jak Kubernetes.
 
 Dodatkiem pomocnym podczas aktywnej pracy developerskiej jest plik compose.yaml, który automatycznie potrafi aktualizować edytowany serwis oraz odtworzyć lokalną infrastrukturę. W przypadku projektów python wymagane jest tylko montowanie odpowiednich wolumenów z plikami projektu.
 
@@ -406,7 +434,7 @@ Pierwszym etapem jest stworzenie repozytorium dla stworzonych obrazów. Google c
 
 Po utworzeniu rejestru możliwe jest wypychanie dowolnych obrazów aplikacji poprzez `docker push`
 
-![Ręczne tworzenie repozytorium docker](./img/gcp-pzuchowski.png)
+![Ręczne tworzenie repozytorium docker](./img/gcp-pzuchowski.png){width=80%}
 
 Uruchamianie instancji obrazu odbywa się poprzez usługę "Cloud Run". Cloud Run pozwala na uruchomienie instancji prywatnego repozytorium i wstępną konfigurację usługi.
 
@@ -423,7 +451,7 @@ Usługa Cloud Run pozwala też na przeglądanie statystyk aplikacji i tworzenie 
 
 Rozwiązanie przedstawione powyżej spełnia swoje zadanie. Aplikacja została sukcesywnie wdrożona na gdzie możemy otrzymywać raporty z logów oraz alerty w razie niepowodzeń.
 
-W dłuższej perspektywie i dalszych pracach nad projektami zaczyją pojawiać się problemy z automatyzacją czy dokuemntacją infrastruktury aplikacji.
+W dłuższej perspektywie i dalszych pracach nad projektami zaczyją pojawiać się problemy z automatyzacją czy dokumentacją infrastruktury aplikacji.
 
 Dlatego warto we czesnych etapach projektu zapisać utrwalić infrastrukturę w postaci kodu.
 Przy użyciu narzędzia Terraform możliwe jest utrwalenie infrastruktury i bezpieczne przechowywanie w repozytorium Git.
@@ -444,10 +472,279 @@ Rozdział przedstawia szczegółowy plan testów, obejmujący cele, strategie, �
 Poprzez analizę wyników testów oraz ocenę ich efektywności, będziemy starali się przedstawić wnioski i zidentyfikowali ewentualnych problemów w implementacji.
 
 
-## Lokalne testy aplikacji
+## Wydajność algorytmu na zbiorach danych
 
-## Testy obciążeniowe wdrożenia
+Testy wydajności algorytmu zostały dokonano na zbiorach pochodzących z repozytorium forcasting.org [@focasting]. Repozytorium stworzone jest z myślą o badaniu modeli pracujących na szeregach czasowych.
+Repozytorium Monash zaproponowało własny format plików `tsf`przeznaczonych do zapisywanie danych wielowymiarowych.
+
+Zaproponowany format plików wymaga dodatkowej obsługi przy konwersji do obiektu `DataFrame`. Wadą plików i strony jest brak związanych z czego poszczególne serie danych dotyczą. W
+
+Testy algorytmu nie zostały przeprowadzone na wszystkich seriach danych. Zbiory danych zostały wybrane ręcznie różniące się na objętością, trendu danych, czy specyficzną charakterystyką, aby przedstawić zachowanie algorytmu na różnych zbiorach.
+
+
+### Nile dataset
+
+Nile dataset to popularny zbiór danych dostępny w języku R, który zawiera informacje o rocznym przepływie rzeki Nil w Egipcie. Jest to często używany zestaw danych w analizie danych i statystyce, ze względu na swój historyczny charakter i znaczenie dla regionu Nilu.
+
+Dataset Nile zawiera dwie kolumny:
+
+1. Year (Rok): Określa rok pomiaru przepływu rzeki Nil.
+2. Flow (Przepływ): Zawiera informacje o rocznym przepływie rzeki Nil.
+
+
+Tabela 1. Wydajność algorytmu dla zbioru "Nile"
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   |  100 |
+| użyta pamięć [KB]   |  9616.00  |
+| czas przetwarzania [s]   |  0.9021 |
+
+
+Tabela 2. Wykryte wyjątki dla zbioru Nile
+
+| Indeks | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+| 35   |  LS    | 137.002975    | 1.343409   |
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru Nile.](./img/Nile.svg)
+
+### Śmiertelność wirusa Covid-19
+
+Zestaw danych zawiera codzienne informacje dotyczące liczby zgonów związanych z wirusem Covid-19 w różnych krajach i stanach od 22 stycznia 2020 do 20 sierpnia 2020 roku. W celu przeprowadzenia testów wybrano serię danych oznaczoną jako 'T1', która obejmuje zakres od 0 do 1385 zgonów, charakteryzując się krzywą reprezentującą rozwój zgonów w tym okresie.
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   | 212  |
+| użyta pamięć [KB]   |  28744.00  |
+| czas przetwarzania [s]   |  1.7414 |
+
+
+| Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+|148 | AO|-15.689793|-2.502063|
+|155 | AO|-16.586774|-2.645105|
+|156 | LS| 38.507450| 3.703558|
+|164 | LS| 24.233363| 2.330709|
+|165 | TC|-22.956667|-2.499087|
+|175 | AO|-19.907377|-3.174644|
+|176 | LS| 54.883810| 5.278597|
+|183 | AO|-16.092181|-2.566232|
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(3,0,2) dla zbioru Covid.](./img/covid.svg)
+
+### Sprzedaż skelpów Dominick
+
+Dane pochodzą z sieci magazynów Dominick.
+
+Zbiór danych zawiera 115704 tygodniowych szeregów czasowych reprezentujących zysk poszczególnych jednostek magazynowych od sprzedawcy detalicznego.
+
+Do testów zostały wykorzystane 2 szeregi T1 i T10.
+
+Szereg T1 charakteryzują początkowe skoki danych różnymi od zera. Dane poniżej zera nie mają uzasadnienia w rzeczywistości. Szereg czasowy po nieregularnej fazie początkowej stabilizuję się do wartości zerowej.
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   | 92  |
+| użyta pamięć [KB]   |  16572.00  |
+| czas przetwarzania [s]   |  0.7350 |
+
+
+| Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+|0 | IO|-26.730718|-16.598713|
+|1 | IO| -6.641221| -4.123934|
+|2 | AO|  3.573929|  4.370635|
+|3 | TC|-10.003285| -8.100266|
+|4 | IO| 11.103853|  6.895051|
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,2) dla zbioru Dominick-0.](./img/dominick0.svg)
+
+Szereg T10 również nie przyjmuję wartości poniżej zera. Dane charakteryzują się nieregularnością w postaci nagłych zmian wartości przyjmujących kształt kwadratowy. Szereg czasowy zawiera różne wartości liczbowe. Wartości te oscylują między około 0 a 75.68.
+
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   |  393 |
+| użyta pamięć [KB]   |  37416.00  |
+| czas przetwarzania [s]   |  4.6710 |
+
+
+
+| Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+|228 | TC|-70.559254|-2.289646|
+|299 | TC| 66.529967| 2.158896|
+|359 | TC| 74.309658| 2.411346|
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,2) dla zbioru Dominick-10.](./img/dominick10.svg)
+
+
+### CIF 2016
+
+Zbiór danych CIF 2016 zawiera 72 miesięczne szeregi czasowe pochodzące z dziedziny bankowej, używane w konkursie prognozowania CIF 2016. Spośród 72 szeregów czasowych, 24 szeregi zawierają dane czasu rzeczywistego, podczas gdy pozostałe 48 szeregów zostały wygenerowane sztucznie. W konkursie rozważane są dwie horyzonty prognozowania, gdzie 57 szeregów uwzględnia horyzont prognozowania równy 12, a pozostałe 15 szeregów uwzględniają horyzont prognozowania równy 6.
+
+Test został przeprowadzony na szeregu T1, który ma trend rosnący oraz zawiera punktowe odchylenia.
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   |  120 |
+| użyta pamięć [KB]   |  13564.00  |
+| czas przetwarzania [s]   |  0.8951 |
+
+
+
+| Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+|0    |AO | 230.251050 | 6.047273|
+|1    |IO |-214.407818 |-4.758515|
+|2    |IO | -88.895226 |-1.972919|
+|71   |AO | -64.863290 |-1.703558|
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru CIF.](./img/cif.svg)
+
+
+### Opady deszczu
+
+Zbiór danych zawiera 32072 szeregi czasowe przedstawiające obserwacje temperatury oraz prognozy opadów deszczu, zebrane przez Australijski Urząd Meteorologiczny dla 422 stacji meteorologicznych na terenie Australii, w okresie od 2 maja 2015 roku do 26 kwietnia 2017 roku.
+
+Do testów został wykorzystany szereg T1, który zawiera opady. Volumen danych jest największy zawiera wartości zerowe i może zawierać puste dane
+
+| Statystyka   | wartość   |
+|--------------- | --------------- |
+| ilość rekordów   |  4254 |
+| użyta pamięć [KB]   |  60648.00  |
+| czas przetwarzania [s]   |  365.6887 |
+
+
+
+| Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
+| --- | --- |:------:|:---:|
+|630  |  TC | -5.017441 | -3.029864 |
+|774  |  TC |-17.753203 |-10.720561 |
+|796  |  TC | -9.123180 | -5.509181 |
+|819  |  TC | -8.213565 | -4.959895 |
+|881  |  TC | -9.065328 | -5.474246 |
+|924  |  IO |-11.522472 | -6.907106 |
+|978  |  TC |-10.768427 | -6.502690 |
+|1128 |  TC |-19.988167 |-12.070180 |
+|1324 |  TC | -7.729716 | -4.667715 |
+|1424 |  TC |-11.448772 | -6.913527 |
+|1524 |  TC | -5.374700 | -3.245600 |
+|1527 |  IO |  6.278554 |  3.763657 |
+|1746 |  TC |-10.904673 | -6.584964 |
+|1852 |  TC |-13.178927 | -7.958310 |
+|2141 |  AO |  6.075587 |  4.435715 |
+|2142 |  TC |-12.184195 | -7.357625 |
+|2237 |  IO | -6.730764 | -4.034733 |
+|2239 |  TC | -8.536431 | -5.154863 |
+|2276 |  TC | -6.978619 | -4.214153 |
+|2284 |  TC | -8.836572 | -5.336108 |
+|2566 |  TC |-16.374303 | -9.887889 |
+|2942 |  TC | -9.315723 | -5.625451 |
+|2951 |  TC | -7.446335 | -4.496591 |
+|3167 |  TC |-16.184454 | -9.773246 |
+|3169 |  IO | 10.582041 |  6.343368 |
+|3195 |  TC | -6.048272 | -3.652347 |
+|3367 |  TC | -5.877523 | -3.549238 |
+|3622 |  TC |-12.705497 | -7.672421 |
+|4052 |  TC | -7.835903 | -4.731838 |
+|4105 |  TC |-11.812751 | -7.133322 |
+
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru Rain.](./img/rain.svg)
+
+
+### Podsumowanie i wnioski
+
+Testy zostały przeprowadzone dla różnych stopni modelu ARIMA
+
+Algorytm jest efektywny w wykrywaniu wyjątków dla naturalnych zbiorach danych. Metoda potrafi dobrze dopasować się do trendów.
+
+Zauważyć można problemy algorytmu z wykrywaniem wyjątków dla pierwszych danych serii, które są licznie wykrywane. Co za może doprowadzić do niechcianego efektu powiększenia anomalii w szeregu.
+Algorytm nie jest świadomy przekraczania wartości 0. Z tego powodu rozwiązanie nie nadaję się dla danych bliskim zeru.
+
+Algorytm jest w stanie przetwarzać większe zbiory danych, jednak obliczenia stają się bardziej czasochłonne z powodu konieczności przeprowadzenia obliczeń dla całego okna.
+
+## Testy obciążeniowe serwisu
+
+Sprawdzenie efektywniości interfejsu REST zostały przeprowadzone korzystając z narzędzia vegeta [@vegeta].
+Testy skupiły się na ocenie zachowania systemu w określonych warunkach obciążenia. Celem jest określenie zachowania systemu i metryk wydajnościowych, gdy jest on poddany różnym poziomom symulowanej aktywności użytkowników.
+
+Najważniejszymi metrykami podczas testów był stosunek poprawnych odpowiedzi http i opóźnienie przy ustalonej liczbie żądań na sekundę.
+
+
+### Health check
+
+`GET /health` jest najprostszym zapytaniem, który serwis udostępnia. Statystyki z takiego testu mogą być przydatne w dalszej analizie skuteczności implementacji serwisu. Z powodu że zapytanie nie jest ściśle związany z modułem algorytmu, może być przydatny w dalszym wykazywaniu skuteczności modułów.
+W przypadku niesatysfakcjonujących wyników, może wskazywać na problemy z serwerem http lub infrastrukturą chmurową.
+
+| Liczba żądań | 200.07/s   | 100.07/s   | 50.07/s    |
+|--------------|------------|------------|------------|
+| Żądania      | 3000       | 1500       | 750        |
+| Czas trwania | 15.038s    | 15.031s    | 15.022s    |
+| Opóźnienie min | 110.841µs | 180.257µs  | 139.638µs |
+| Opóźnienie mediana | 46.401ms | 43.49ms    | 47.741ms  |
+| Opóźnienie max | 156.174ms | 134.481ms  | 218.533ms  |
+| Sukces       | 99.70%     | 99.60%     | 99.47%     |
+| Kody stanu   | 0:9  200:2991 | 0:6  200:1494 | 0:4  200:746 |
+
+
+### Generowanie efektów
+
+W tabelach przestawiono wyniki testów obciążeniowych dla poszczególnych funkcji API. Testy dotyczące generowania efektów miały za zadanie wykonanie obliczeń 1000 elementowego efektu, który zaczyna się w punkcie 50 o wielkości 10.
+
+Generowanie efektu $AO$ `/ao_effect`
+
+| Liczba żądań | 50.07/s    | 100.06/s   | 200.07/s   |
+|--------------|------------|------------|------------|
+| Żądania      | 750        | 1500       | 3000       |
+| Czas trwania | 15.029s    | 15.042s    | 15.04s     |
+| Opóźnienie min | 202.521µs | 132.251µs  | 130.178µs |
+| Opóźnienie mediana | 45.457ms | 46.072ms   | 44.057ms  |
+| Opóźnienie max | 496.62ms  | 151.204ms  | 281.249ms |
+| Sukces       | 98.13%     | 99.73%     | 99.73%     |
+| Kody stanu   | 0:14  200:736 | 0:4  200:1496 | 0:8  200:2992 |
+
+Generowanie efektu $LS$ `/ls_effect`
+
+| Liczba żądań | 200.06/s   | 100.06/s   | 50.06/s    |
+|--------------|------------|------------|------------|
+| Żądania      | 3000       | 1500       | 750        |
+| Czas trwania | 15.054s    | 15.035s    | 15.026s    |
+| Opóźnienie min | 115.782µs | 200.016µs  | 180.174µs |
+| Opóźnienie mediana | 59.712ms | 47.123ms   | 45.836ms  |
+| Opóźnienie max | 193.445ms | 143.69ms   | 134.011ms  |
+| Sukces       | 99.73%     | 99.73%     | 99.60%     |
+| Kody stanu   | 0:8  200:2992 | 0:4  200:1496 | 0:3  200:747  |
+
+Generowanie efektu $TC$ `/tc_effect`
+
+| Liczba żądań | 50.07/s    | 100.06/s   | 200.07/s   |
+|--------------|------------|------------|------------|
+| Żądania      | 750        | 1500       | 3000       |
+| Czas trwania | 15.041s    | 15.162s    | 27.606s    |
+| Opóźnienie min | 183.003µs | 164.242µs  | 46.24µs    |
+| Opóźnienie mediana | 57.178ms | 59.564ms   | 6.027s     |
+| Opóźnienie max | 169.284ms | 186.222ms  | 16.834s    |
+| Sukces       | 99.87%     | 99.73%     | 97.67%     |
+| Kody stanu   | 0:1  200:749 | 0:4  200:1496 | 0:70  200:2930 |
+
+Generowanie efektu dla modelu ARIMA (3,0,2) $IO$ `/io_effect`
+
+| Liczba żądań | 50.06/s    | 100.06/s   | 200.06/s   | 500.06/s   |
+|--------------|------------|------------|------------|------------|
+| Żądania      | 750        | 1500       | 3000       | 7500       |
+| Czas trwania | 15.038s    | 15.072s    | 27.524s    | 44.97s     |
+| Opóźnienie min | 167.545µs | 166.943µs  | 54.649µs   | 39.469µs   |
+| Opóźnienie mediana | 59.507ms | 73.718ms   | 6.046s     | 23.408s    |
+| Opóźnienie max | 174.438ms | 185.772ms  | 18.881s    | 30.001s    |
+| Sukces       | 99.60%     | 99.40%     | 97.10%     | 47.00%     |
+| Kody stanu   | 0:3  200:747 | 0:9  200:1491 | 0:87  200:2913 | 0:3975  200:3525 |
+
+
 
 \newpage
 
 # Bibliografia
+
+\newpage
