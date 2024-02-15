@@ -145,7 +145,7 @@ TC: \xi (B) = \frac{1}{1 - \delta B} \quad \quad \quad 0 < \delta < 1
 IO: \xi (B) = \frac{\theta(B)}{\alpha(B) \phi(B) }
 \end{equation}
 
-W późniejszych pracach i implantacjach [@alsdkf] można napotkać na 5 typ wyjątków $SLS$. Ma za zadanie lepiej odwzorcowywać sezonowość szeregu czasowego niż typ IO, który nie musi dziedziczyć cech sezonowości z przyjętego modelu.
+W późniejszych pracach i implantacjach [@kaiser1999seasonal] można napotkać na 5 typ wyjątków $SLS$. Ma za zadanie lepiej odwzorcowywać sezonowość szeregu czasowego niż typ IO, który nie musi dziedziczyć cech sezonowości z przyjętego modelu.
 
 \begin{equation}
 SLS: \xi (B) = 1/S \quad \quad \quad S = 1 + B + ... + B^{s-1}
@@ -746,5 +746,6 @@ Generowanie efektu dla modelu ARIMA (3,0,2) $IO$ `/io_effect`
 \newpage
 
 # Bibliografia
+
 
 \newpage
