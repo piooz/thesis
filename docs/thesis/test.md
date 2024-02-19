@@ -8,9 +8,17 @@ documentclass: article
 classoption:
     - twoside
 linestretch: 1.2
-toc: true
 lang: pl
+figureTitle: "Rysunek"
+tableTitle: "Tabela"
+figPrefix: "rys."
+eqnPrefix: "wzór."
+tblPrefix: "tab."
+loftitle: "# Lista de figuras"
+lotTitle: "# Lista de tablas"
 numbersections: true
+toc: false
+
 header-includes: |
   \usepackage{float}
   \let\origfigure\figure
@@ -22,6 +30,13 @@ header-includes: |
   }
 
 ---
+
+\newpage
+\
+
+\newpage
+
+\tableofcontents
 
 \newpage
 
@@ -167,6 +182,14 @@ Następuję kolejne dopasowanie modelu skorygowanej serii.
 
 #. Ostatnim etapem jest powtórzenie pierwszej i drugiej fazy algorymu wykorzystując nowe parametry modelu: W pierwszej fazie nie koryguję parametrów. W drugiej fazie $\hat{\omega}$ jest końcową wartością.
 
+\newpage
+
+![Etap I algorytmu Chen-Liu](./img/chen-liu-stageI.drawio.svg)
+
+![Etap II algorytmu Chen-Liu](./img/chen-liu-stageII.drawio.svg)
+
+![Etap III algorytmu Chen-Liu](./img/chen-liu-stageIII.drawio.svg)
+
 ## Wykrywanie wyjątków w systemach informatycznych
 
 Algorytm "Chen-Liu" nie jest jedynym algorytmem wykrywania wyjątków. Na przestrzeni lat postało wiele metod stworzonych w tym celu.
@@ -271,7 +294,7 @@ zaoszczędzenie kosztów związanych z utrzymaniem własnej infrastruktury i spe
 : Narzędzie służące do automatyzacji infrastruktury chmurowej. Projekt Open Source stworzony przez Hashicorp, który pozwala na zastosowanie technik IaC i otwiera możliwości automatyzacji poprzez techniki Devops.
 
 - Narzędzia jakości kodu
-: Niewątpliwie narzędzia formatowania poprawiają jakość oprogramowania poprzez wymuszenie przyjętych standardów. Formater kodu python "Blue" udostępnia narzędzie CLI dzięki czemu proces formatowanie można łatwo zintegrować z edytorem kodu. Warto aby edytor tekstu wspierał funkcje LSP (Language Server Protocol) lub dodawał funkcję wspomagające prace przy kodzie tj. podświetlanie błędów składni przed uruchomieniem kodu, wyświetlanie dokumentacji funkcji, przewidywał użytych i zwracanych typów.
+: Niewątpliwie narzędzia formatowania poprawiają jakość oprogramowania poprzez wymuszenie przyjętych standardów. Formater kodu python "Blue" udostępnia narzędzie CLI dzięki czemu proces formatowanie można łatwo zintegrować z edytorem kodu. Warto aby edytor tekstu wspierał funkcje LSP (Language Server Protocol) lub dodawał funkcję wspomagające prace przy kodzie tj. podświetlanie błędów składni przed uruchomieniem kodu, wyświetlanie dokumentacji funkcji / klas , przewidywanie użytych i zwracanych typów.
 
 ## Implementacja algorytmu
 
@@ -484,12 +507,14 @@ Testy algorytmu nie zostały przeprowadzone na wszystkich seriach danych. Zbiory
 
 ### Nile dataset
 
-Nile dataset to popularny zbiór danych dostępny w języku R, który zawiera informacje o rocznym przepływie rzeki Nil w Egipcie. Jest to często używany zestaw danych w analizie danych i statystyce, ze względu na swój historyczny charakter i znaczenie dla regionu Nilu.
+Nile dataset to popularny zbiór danych dostępny w języku R, który zawiera informacje o rocznym przepływie rzeki Nil. Zbiór zwiera roczne przepływu Nilu w Asuanie (dawniej Assuan) między latami 1871-1970. Jednostką miary są $10^8m^3$, z widocznym punktem zmiany w pobliżu 1898 roku.
+
+Jest to często używany zestaw danych w analizie danych i statystyce, ze względu na swój historyczny charakter.
 
 Dataset Nile zawiera dwie kolumny:
 
 1. Year (Rok): Określa rok pomiaru przepływu rzeki Nil.
-2. Flow (Przepływ): Zawiera informacje o rocznym przepływie rzeki Nil.
+2. Flow (Przepływ): Zawiera informacje o rocznym przepływie rzeki Nil w $10^8m^3$ w mieście Assuan.
 
 
 Tabela 1. Wydajność algorytmu dla zbioru "Nile"
@@ -509,31 +534,38 @@ Tabela 2. Wykryte wyjątki dla zbioru Nile
 
 ![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru Nile.](./img/Nile.svg)
 
-### Śmiertelność wirusa Covid-19
+### Śmiertelność wirusa COVID-19
 
-Zestaw danych zawiera codzienne informacje dotyczące liczby zgonów związanych z wirusem Covid-19 w różnych krajach i stanach od 22 stycznia 2020 do 20 sierpnia 2020 roku. W celu przeprowadzenia testów wybrano serię danych oznaczoną jako 'T1', która obejmuje zakres od 0 do 1385 zgonów, charakteryzując się krzywą reprezentującą rozwój zgonów w tym okresie.
+Seria danych zawiera informacje na temat łącznej liczby zgonów spowodowanych lub związanych z wirusem COVID-19 na terenie Polski. Długość serii wynosi 495, są do wartości dzienne zaczynające się od 22 lutego 2020r. do 31 maja 2021r. Seria nie zawiera  pustych wartości.
+
+Zbiór danych pochodzi z publicznego repozytorium Johns Hopkins University, dostępny na platformie github [@DONG2020533]. Dane, na dla potrzeby testów zostały przefiltrowane i skrócone.
+
+Celem testu jest sprawdzenie zachowania się algorytmu dla danych rozpoczynają się serią zer. Dane łącznych przypadków śmiertelnych dobrze spiszą się do tego celu. Większość serii z innych państw / stanów / miast mogą mieć podobne wartości pod względem tworzonej krzywizny, ale być w różnej skali.
 
 | Statystyka   | wartość   |
 |--------------- | --------------- |
-| ilość rekordów   | 212  |
-| użyta pamięć [KB]   |  28744.00  |
-| czas przetwarzania [s]   |  1.7414 |
+| ilość rekordów   | 395  |
+| użyta pamięć [KB]   |  28300.00  |
+| czas przetwarzania [s]   |  2.8876 |
 
 
 | Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
 | --- | --- |:------:|:---:|
-|148 | AO|-15.689793|-2.502063|
-|155 | AO|-16.586774|-2.645105|
-|156 | LS| 38.507450| 3.703558|
-|164 | LS| 24.233363| 2.330709|
-|165 | TC|-22.956667|-2.499087|
-|175 | AO|-19.907377|-3.174644|
-|176 | LS| 54.883810| 5.278597|
-|183 | AO|-16.092181|-2.566232|
+|290 | LS | 377.624460| 2.743099|
+|308 | IO | 530.860709| 2.879998|
+|310 | IO | 494.771605| 2.684209|
+|332 | AO |-208.824617|-2.768120|
+|333 | LS | 469.221737| 3.408470|
+|338 | IO | 565.595406| 3.068439|
+|350 | AO |-215.592701|-2.857836|
+|351 | LS | 557.277591| 4.048116|
+|385 | AO | 217.189932| 2.878665|
+|386 | AO |-296.255695|-3.926023|
+|387 | LS | 633.392286| 4.599533|
 
-![Wynik algorytmu Chen-Liu dla modelu ARIMA(3,0,2) dla zbioru Covid.](./img/covid.svg)
+![Wynik algorytmu Chen-Liu dla modelu ARIMA(3,0,2) dla zbioru Covid.](./img/COVID-19.svg)
 
-### Sprzedaż skelpów Dominick
+### Sprzedaż sklepów Dominick
 
 Dane pochodzą z sieci magazynów Dominick.
 
@@ -541,7 +573,7 @@ Zbiór danych zawiera 115704 tygodniowych szeregów czasowych reprezentujących 
 
 Do testów zostały wykorzystane 2 szeregi T1 i T10.
 
-Szereg T1 charakteryzują początkowe skoki danych różnymi od zera. Dane poniżej zera nie mają uzasadnienia w rzeczywistości. Szereg czasowy po nieregularnej fazie początkowej stabilizuję się do wartości zerowej.
+Szereg T1 charakteryzują początkowe skoki danych różnymi od zera. Dane poniżej zera nie mają uzasadnienia w rzeczywistości. Szereg czasowy po nieregularnej fazie początkowej stabilizuję się do wartości zerowej. Celem testu jest obserwacja algorytmu na powyższym typie zbiorów.
 
 | Statystyka   | wartość   |
 |--------------- | --------------- |
@@ -560,7 +592,12 @@ Szereg T1 charakteryzują początkowe skoki danych różnymi od zera. Dane poni�
 
 ![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,2) dla zbioru Dominick-0.](./img/dominick0.svg)
 
+Zgodnie z oczekiwaniami zostały wykryte wyjątki w pierwszych, nieregularnych punktach. Doszło jednak do niepożądanego wzmocnienie efektów i przekroczenie wartości poniżej zera.
+
+
 Szereg T10 również nie przyjmuję wartości poniżej zera. Dane charakteryzują się nieregularnością w postaci nagłych zmian wartości przyjmujących kształt kwadratowy. Szereg czasowy zawiera różne wartości liczbowe. Wartości te oscylują między około 0 a 75.68.
+
+Celem testu jest obserwacja zachowania algorytmu dla serii danych "skokowych", nieregularnych, przypominających sygnał kwadratowy.
 
 
 | Statystyka   | wartość   |
@@ -579,6 +616,8 @@ Szereg T10 również nie przyjmuję wartości poniżej zera. Dane charakteryzuj�
 
 ![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,2) dla zbioru Dominick-10.](./img/dominick10.svg)
 
+Algorytm również w tym przypadku przekroczył wartości poniżej zera. Jednak zostały wykryte wartości odstające w końcowej części serii, gdzie znajdowały się wzrosty, które różniły się od kwadratowej natury serii.
+
 
 ### CIF 2016
 
@@ -592,8 +631,6 @@ Test został przeprowadzony na szeregu T1, który ma trend rosnący oraz zawiera
 | użyta pamięć [KB]   |  13564.00  |
 | czas przetwarzania [s]   |  0.8951 |
 
-
-
 | Indeks  | Typ | $\hat{\omega}$ | $\hat{\tau}$ |
 | --- | --- |:------:|:---:|
 |0    |AO | 230.251050 | 6.047273|
@@ -601,14 +638,19 @@ Test został przeprowadzony na szeregu T1, który ma trend rosnący oraz zawiera
 |2    |IO | -88.895226 |-1.972919|
 |71   |AO | -64.863290 |-1.703558|
 
+
 ![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru CIF.](./img/cif.svg)
+
+Efekty wyjątków wykrytych w pierwszych trzech wartościach znacznie pływają na kształt całego modelu. Wyjątek na poziomie 71 znacząco wyróżniał się na tle sąsiadujących wartości.
 
 
 ### Opady deszczu
 
 Zbiór danych zawiera 32072 szeregi czasowe przedstawiające obserwacje temperatury oraz prognozy opadów deszczu, zebrane przez Australijski Urząd Meteorologiczny dla 422 stacji meteorologicznych na terenie Australii, w okresie od 2 maja 2015 roku do 26 kwietnia 2017 roku.
 
-Do testów został wykorzystany szereg T1, który zawiera opady. Volumen danych jest największy zawiera wartości zerowe i może zawierać puste dane
+Do testów został wykorzystany szereg T1, który zawiera informacje z miernika opadów atmosferycznych. Wolumen danych jest największy, zawiera wartości zerowe i może zawierać luki.
+
+Celem testu jest zbadanie zużytych zasobów i czas wykonania obliczeń dla bardzo dużych zbiorów danych i przedstawienia rozwiązania.
 
 | Statystyka   | wartość   |
 |--------------- | --------------- |
@@ -654,6 +696,9 @@ Do testów został wykorzystany szereg T1, który zawiera opady. Volumen danych 
 ![Wynik algorytmu Chen-Liu dla modelu ARIMA(1,0,1) dla zbioru Rain.](./img/rain.svg)
 
 
+Zauważyć można praktycznie podobne dopasowanie modelu końcowego z początkowym, jednak poprawiony model może przyjąć wartości poniżej 0. Metoda nie wskazała wyjątków dla wartości powyżej 60, jednak wskazuję wyjątki dla wartości niższych gdzie wystąpiła nieregularność.
+
+
 ### Podsumowanie i wnioski
 
 Testy zostały przeprowadzone dla różnych stopni modelu ARIMA
@@ -678,74 +723,74 @@ Najważniejszymi metrykami podczas testów był stosunek poprawnych odpowiedzi h
 `GET /health` jest najprostszym zapytaniem, który serwis udostępnia. Statystyki z takiego testu mogą być przydatne w dalszej analizie skuteczności implementacji serwisu. Z powodu że zapytanie nie jest ściśle związany z modułem algorytmu, może być przydatny w dalszym wykazywaniu skuteczności modułów.
 W przypadku niesatysfakcjonujących wyników, może wskazywać na problemy z serwerem http lub infrastrukturą chmurową.
 
-| Liczba żądań | 200.07/s   | 100.07/s   | 50.07/s    |
-|--------------|------------|------------|------------|
-| Żądania      | 3000       | 1500       | 750        |
-| Czas trwania | 15.038s    | 15.031s    | 15.022s    |
-| Opóźnienie min | 110.841µs | 180.257µs  | 139.638µs |
-| Opóźnienie mediana | 46.401ms | 43.49ms    | 47.741ms  |
-| Opóźnienie max | 156.174ms | 134.481ms  | 218.533ms  |
-| Sukces       | 99.70%     | 99.60%     | 99.47%     |
-| Kody stanu   | 0:9  200:2991 | 0:6  200:1494 | 0:4  200:746 |
+|Liczba żądań       |50.07/s      | 100.07/s      |200.07/s      |
+| ----------------- | ----------- |  ------------ | ------------ |
+|Żądania            |750          | 1500          |3000          |
+|Czas trwania       |15.022s      | 15.031s       |15.038s       |
+|Opóźnienie min     |139.638µs    | 180.257µs     |110.841µs     |
+|Opóźnienie mediana |47.741ms     | 43.49ms       |46.401ms      |
+|Opóźnienie max     |218.533ms    | 134.481ms     |156.174ms     |
+|Sukces             |99.47%       | 99.60%        |99.70%        |
+|Kody stanu         |0:4  200:746 | 0:6  200:1494 |0:9  200:2991 |
 
 
 ### Generowanie efektów
 
 W tabelach przestawiono wyniki testów obciążeniowych dla poszczególnych funkcji API. Testy dotyczące generowania efektów miały za zadanie wykonanie obliczeń 1000 elementowego efektu, który zaczyna się w punkcie 50 o wielkości 10.
 
-Generowanie efektu $AO$ `/ao_effect`
-
 | Liczba żądań | 50.07/s    | 100.06/s   | 200.07/s   |
 |--------------|------------|------------|------------|
 | Żądania      | 750        | 1500       | 3000       |
 | Czas trwania | 15.029s    | 15.042s    | 15.04s     |
-| Opóźnienie min | 202.521µs | 132.251µs  | 130.178µs |
+| Opóźnienie min. | 202.521µs | 132.251µs  | 130.178µs |
 | Opóźnienie mediana | 45.457ms | 46.072ms   | 44.057ms  |
-| Opóźnienie max | 496.62ms  | 151.204ms  | 281.249ms |
+| Opóźnienie max. | 496.62ms  | 151.204ms  | 281.249ms |
 | Sukces       | 98.13%     | 99.73%     | 99.73%     |
 | Kody stanu   | 0:14  200:736 | 0:4  200:1496 | 0:8  200:2992 |
+: Wyniki testu obciążenia cieżki `/ao_effect`
 
-Generowanie efektu $LS$ `/ls_effect`
 
-| Liczba żądań | 200.06/s   | 100.06/s   | 50.06/s    |
+| Liczba żądań | 50.06/s    | 100.06/s   | 200.06/s   |
 |--------------|------------|------------|------------|
-| Żądania      | 3000       | 1500       | 750        |
-| Czas trwania | 15.054s    | 15.035s    | 15.026s    |
-| Opóźnienie min | 115.782µs | 200.016µs  | 180.174µs |
-| Opóźnienie mediana | 59.712ms | 47.123ms   | 45.836ms  |
-| Opóźnienie max | 193.445ms | 143.69ms   | 134.011ms  |
-| Sukces       | 99.73%     | 99.73%     | 99.60%     |
-| Kody stanu   | 0:8  200:2992 | 0:4  200:1496 | 0:3  200:747  |
+| Żądania      | 750        | 1500       | 3000       |
+| Czas trwania | 15.026s    | 15.035s    | 15.054s    |
+| Opóźnienie min. | 180.174µs | 200.016µs  | 115.782µs |
+| Opóźnienie mediana | 45.836ms  | 47.123ms   | 59.712ms   |
+| Opóźnienie max. | 134.011ms  | 143.69ms   | 193.445ms  |
+| Sukces       | 99.60%     | 99.73%     | 99.73%     |
+| Kody stanu   | 0:3  200:747 | 0:4  200:1496 | 0:8  200:2992 |
+: Wyniki testu obciążenia cieżki `/ls_effect`
 
-Generowanie efektu $TC$ `/tc_effect`
 
 | Liczba żądań | 50.07/s    | 100.06/s   | 200.07/s   |
 |--------------|------------|------------|------------|
 | Żądania      | 750        | 1500       | 3000       |
 | Czas trwania | 15.041s    | 15.162s    | 27.606s    |
-| Opóźnienie min | 183.003µs | 164.242µs  | 46.24µs    |
+| Opóźnienie min. | 183.003µs | 164.242µs  | 46.24µs    |
 | Opóźnienie mediana | 57.178ms | 59.564ms   | 6.027s     |
-| Opóźnienie max | 169.284ms | 186.222ms  | 16.834s    |
+| Opóźnienie max. | 169.284ms | 186.222ms  | 16.834s    |
 | Sukces       | 99.87%     | 99.73%     | 97.67%     |
 | Kody stanu   | 0:1  200:749 | 0:4  200:1496 | 0:70  200:2930 |
+: Wyniki testu obciążenia cieżki `/tc_effect`
 
-Generowanie efektu dla modelu ARIMA (3,0,2) $IO$ `/io_effect`
 
 | Liczba żądań | 50.06/s    | 100.06/s   | 200.06/s   | 500.06/s   |
 |--------------|------------|------------|------------|------------|
 | Żądania      | 750        | 1500       | 3000       | 7500       |
 | Czas trwania | 15.038s    | 15.072s    | 27.524s    | 44.97s     |
-| Opóźnienie min | 167.545µs | 166.943µs  | 54.649µs   | 39.469µs   |
+| Opóźnienie min. | 167.545µs | 166.943µs  | 54.649µs   | 39.469µs   |
 | Opóźnienie mediana | 59.507ms | 73.718ms   | 6.046s     | 23.408s    |
-| Opóźnienie max | 174.438ms | 185.772ms  | 18.881s    | 30.001s    |
+| Opóźnienie max. | 174.438ms | 185.772ms  | 18.881s    | 30.001s    |
 | Sukces       | 99.60%     | 99.40%     | 97.10%     | 47.00%     |
 | Kody stanu   | 0:3  200:747 | 0:9  200:1491 | 0:87  200:2913 | 0:3975  200:3525 |
+: Wyniki testu obciążenia cieżki `/io_effect` dla modelu ARIMA(3,0,2)
 
 
+## Wioski
 
-\newpage
+Przeprowadzone testy wykazały odporność środowiska chmurowego i aplikacji na nagłe zwiększenie ruchu sieciowego. Infrastruktura chmurowa efektywnie zachowywała stabilność podczas zwiększonego obciążenia.
+Aplikacja przeszła test pomyślnie. Zauważyć można spadki wydajności przy bardziej zaawansowanych obliczeniach tj. `/io_effect`, gdzie przy obciążeniu pięciuset żądań na sekundę ilość odpowiedzi `OK` zmniejszyła się o połowę. W przypadku kiedy zwiększonego ruchu, budowa aplikacji i chmura GCP umożliwia rozszerzenie
+horyzontalne serwisu co pozwoli w łatwy sposób rozwiązać problemy z dostępnością.
 
 # Bibliografia
 
-
-\newpage
