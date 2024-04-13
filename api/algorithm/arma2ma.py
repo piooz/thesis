@@ -1,5 +1,4 @@
 import numpy as np
-from .logger import logging
 
 
 def arma2ma(ar, ma, lag_max):
@@ -20,8 +19,6 @@ def arma2ma(ar, ma, lag_max):
     q = len(ma)
     m = int(lag_max)
 
-    # logging.debug(f'ar: {ar}')
-    # logging.debug(f'ma: {ma}')
     if m <= 0:
         raise ValueError('Invalid value of lag_max')
 

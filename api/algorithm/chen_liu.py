@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
+from pandas import DataFrame, Series
 import statsmodels.tsa.arima.model as tsa
 from .effects import combine_effects, get_dataframe_effects
 from . import xii
@@ -29,11 +29,11 @@ def extract_values(row, cval=3):
     ]
 
     if not valid_types:
-        return pd.Series({'type': None, 'coefhat': None, 'tstat': None})
+        return Series({'type': None, 'coefhat': None, 'tstat': None})
 
     max_type = max(valid_types, key=lambda t: abs(row[f'{t}tstat']))
 
-    return pd.Series(
+    return Series(
         {
             'type': max_type,
             'coefhat': row[f'{max_type}coef'],
@@ -52,7 +52,12 @@ def locate_outliers_inner_loop(fit, cval, result):
     return (outliers, stats)
 
 
-def stage1(fit, values, cval=0.0, arima_order=(1, 0, 1)):
+def stage1(
+    fit: tsa.ARIMAResults,
+    values,
+    cval: float = 0.0,
+    arima_order: tuple = (1, 0, 1),
+):
     n = len(values)
     if cval == 0:
         cval = calc_cval(n)
@@ -75,7 +80,13 @@ def stage1(fit, values, cval=0.0, arima_order=(1, 0, 1)):
     return (result, stats)
 
 
-def stage23(result: DataFrame, fit, y, cval=0.0, arima_order=(1, 0, 1)):
+def stage23(
+    result: DataFrame,
+    fit: tsa.ARIMAResults,
+    y: Series,
+    cval=0.0,
+    arima_order: tuple = (1, 0, 1),
+):
     """
     using en-masse method to check effect on model
     """
@@ -126,7 +137,7 @@ def stage23(result: DataFrame, fit, y, cval=0.0, arima_order=(1, 0, 1)):
     return result_copy, effect
 
 
-def chen_liu(y, cval=0.0, arima_order=(1, 0, 1)):
+def chen_liu(y: Series, cval: float = 0.0, arima_order: tuple = (1, 0, 1)):
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
