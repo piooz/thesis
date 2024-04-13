@@ -4,6 +4,7 @@ links-as-notes: true
 geometry: "top=2.5cm,bottom=2.5cm,inner=3cm,outer=2cm, headheight=1.25cm, footskip=1.25cm"
 pappersize: a4
 fontsize: 12pt
+listings: true
 documentclass: article
 classoption:
     - twoside

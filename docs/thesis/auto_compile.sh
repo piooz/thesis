@@ -2,11 +2,12 @@
 
 
 ls "$1" | entr -c pandoc \
-  -F pandoc-crossref \
   --citeproc \
   --bibliography=biblio.bib \
-  --pdf-engine tectonic \
+  --pdf-engine pdflatex \
+  --listings \
   /_ \
-  -o thesis.pdf
+  -o thesis.tex
   # --csl ./csl/computing-surveys.csl \
   # --listings \
+  # -F pandoc-crossref \

@@ -1,0 +1,4 @@
+POST https://algorithm-service-db5ylpqzja-ew.a.run.app/analyze/?cval=2&have_header=false&col=0
+accept: application/json
+Content-Type: multipart/form-data
+@/home/piotrz/sem7/chenLiu/api/test/Nile.csv
