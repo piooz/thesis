@@ -1,3 +1,5 @@
+# Editable Git install with no remote (chenLiu==0.0.1)
+-e ./thesis/chenLiu
 fastapi==0.109.0
 motor==3.3.2
 numpy==1.26.3
