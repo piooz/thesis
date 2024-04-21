@@ -4,7 +4,6 @@ links-as-notes: true
 geometry: "top=2.5cm,bottom=2.5cm,inner=3cm,outer=2cm, headheight=1.25cm, footskip=1.25cm"
 pappersize: a4
 fontsize: 12pt
-listings: true
 documentclass: article
 classoption:
     - twoside
@@ -15,12 +14,23 @@ tableTitle: "Tabela"
 figPrefix: "rys."
 eqnPrefix: "wzór."
 tblPrefix: "tab."
-loftitle: "# Lista de figuras"
-lotTitle: "# Lista de tablas"
+loftitle: "Spis rysunków"
+lotTitle: "Spis tabel"
+tables: true
 numbersections: true
 toc: false
+tol: true
+lof: true
+lot: true
+loe: true
+date: \today
+listings-no-page-break: true
+bibliography: biblio.bib
+link-citations: true
+# csl: "https://raw.githubusercontent.com/citation-style-language/styles/master/harvard-anglia-ruskin-university.csl"
 
 header-includes: |
+  \usepackage{tocloft}
   \usepackage{float}
   \let\origfigure\figure
   \let\endorigfigure\endfigure
@@ -28,6 +38,19 @@ header-includes: |
       \expandafter\origfigure\expandafter[H]
   } {
       \endorigfigure
+  }
+  \lstset{
+    basicstyle=\ttfamily\footnotesize,
+    aboveskip=1em,
+    breaklines=true,
+    commentstyle=\color{gray},
+    keywordstyle=\color{black}\underbar,
+    captionpos=b,
+    escapeinside={\%*}{*)},
+    frame=single,
+    numbers=left,
+    numbersep=15pt,
+    numberstyle=\tiny,
   }
 
 ---
@@ -38,6 +61,14 @@ header-includes: |
 \newpage
 
 \tableofcontents
+
+\newpage
+
+
+\begin{abstract}
+
+  Dobry wieczór. Coś się... coś się popsuło i nie było mnie słychać, więc powtórzę jeszcze raz: Wynik wyborczy KWW Stonogi to dla mnie niespodzianka, ale uważam, że to polskie, mądre społeczeństwo, ta świetna grupa ludzi, która głosowała na konkurencyjne partie, zasługuje na szacunek. Jeśli tyle dla Was znaczy... jeśli tyle dla Was znaczy, ludzie, takie zaangażowanie społeczne, jak moje, gdzie postawiłem moją rodzinę, moje życie prywatne, biznes, wszystko inne i dla Was to tylko oznaczało 70 czy 80 tysięcy głosów, to jestem Wam za to wdzięczny.
+\end{abstract}
 
 \newpage
 
@@ -349,7 +380,7 @@ Funkcja przed wykonaniem poprawnych obliczeń musi sprawdzić czy podane argumen
 
 Logowanie odbywa się poprzez zmienna `logging`, która jest konfigurowana w module `logger.py`
 
-```python
+```python{caption="test caption"}
 logging.basicConfig(
     level=logging.DEBUG,  # Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL
     format='[%(asctime)s] %(levelname)s %(funcName)s:\n %(message)s',  # Define the log message format
@@ -792,6 +823,9 @@ W tabelach przestawiono wyniki testów obciążeniowych dla poszczególnych funk
 Przeprowadzone testy wykazały odporność środowiska chmurowego i aplikacji na nagłe zwiększenie ruchu sieciowego. Infrastruktura chmurowa efektywnie zachowywała stabilność podczas zwiększonego obciążenia.
 Aplikacja przeszła test pomyślnie. Zauważyć można spadki wydajności przy bardziej zaawansowanych obliczeniach tj. `/io_effect`, gdzie przy obciążeniu pięciuset żądań na sekundę ilość odpowiedzi `OK` zmniejszyła się o połowę. W przypadku kiedy zwiększonego ruchu, budowa aplikacji i chmura GCP umożliwia rozszerzenie
 horyzontalne serwisu co pozwoli w łatwy sposób rozwiązać problemy z dostępnością.
+
+
+\newpage
 
 # Bibliografia
 
