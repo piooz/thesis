@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 # Wybrane "rates"
 rates=(50 100 200)
 
