@@ -3,6 +3,13 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    environment:
+      CACHE_HOST: cache
+      CACHE_PASS: uphaiMutheej9Maejohs
+      CACHE_EXPIRATION_SECONDS: 86400
+      CACHE_PORT: 6379
+    ports:
+      - 8080:80
   cache:
     image: redis:7.2.4-alpine3.19
     volumes:

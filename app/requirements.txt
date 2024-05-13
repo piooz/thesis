@@ -1,7 +1,7 @@
 annotated-types==0.6.0
 anyio==4.3.0
 build==1.2.1
--e git+https://github.com/piooz/chenliu.git@2365ced1cf99d7830d40aeecbe45dcd2d8cf04bf#egg=chenLiu
+-e git+https://git@github.com/piooz/chenliu.git@03c59b56c279bf8f529392d25717deb692e0d884#egg=chenLiu
 click==8.1.7
 contourpy==1.2.1
 cycler==0.12.1
@@ -29,6 +29,7 @@ pytest==8.1.1
 python-dateutil==2.9.0.post0
 python-multipart==0.0.6
 pytz==2024.1
+redis==5.0.4
 scipy==1.13.0
 six==1.16.0
 sniffio==1.3.1
