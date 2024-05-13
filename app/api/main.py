@@ -6,11 +6,12 @@ from chenLiu import effects
 from fastapi import FastAPI, Request, Response, UploadFile
 from pandas import DataFrame
 from statsmodels.iolib.table import csv
+import pickle
 
 # from .. import algorithm as al
 from chenLiu.chenLiu import chen_liu as cl
 
-from .cache import CacheService, RedisCache
+from .cache import RedisCache
 from .api_model_lib import *
 
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,27 +20,31 @@ import codecs
 import time
 
 app = FastAPI()
-RedisService: CacheService = RedisCache()
+redisService: RedisCache = RedisCache()
 
 
-def cacheRequest(
-    cache_service: CacheService, request: Request, response: Response
-):
-    key = hash((request.url, request.path_params, request.query_params))
+def calc_request_hash(request: Request):
+    path_params = tuple(sorted(request.path_params.items()))
+    query_params = tuple(sorted(request.query_params.items()))
+    key = hash((request.url._url, path_params, query_params))
+    return key
+
+
+def cache_request(cache_service: RedisCache, request: Request, response_body):
+    key = calc_request_hash(request)
     try:
-        cache_service.push(str(key), response)
+        cache_service.push(str(key), pickle.dumps(response_body))
     except Exception as e:
         logging.warning(f'Failed to push key {key} to cache database')
         logging.warning(e)
 
 
-def checkCache(
-    cache_service: CacheService, request: Request
-) -> Response | None:
-    key = hash((request.url, request.path_params, request.query_params))
+def check_cache(cache_service: RedisCache, request: Request):
+    key = calc_request_hash(request)
     try:
-        out = cache_service.read(key)
-        return Response(out)
+        response_body = pickle.loads(cache_service.read(key))
+        logging.info(response_body)
+        return response_body
     except Exception as e:
         logging.warning(f'Failed to read key: {key} from cache service')
         logging.warning(e)
@@ -122,9 +127,18 @@ async def analyze_file(
 
 
 @app.get('/ao_effect/')
-async def generate_ao(len: int, start_point: int, w: float) -> list[float]:
-    array = effects.ao_effect(len, start_point, w)
-    return array.tolist()
+async def generate_ao(
+    len: int, start_point: int, w: float, request: Request
+) -> list[float]:
+
+    cache = check_cache(redisService, request)
+    if cache is not None:
+        return list[float](cache)
+    else:
+        logging.info('dupa')
+        array = effects.ao_effect(len, start_point, w).tolist()
+        cache_request(redisService, request, array)
+        return array
 
 
 @app.get('/ls_effect/')
@@ -162,7 +176,7 @@ async def generate_io(
 
 @app.get('/health/')
 async def check_health():
-    return {'status': RedisService.check_healt()}
+    return {'status': redisService.check_healt()}
 
 
 if __name__ == '__main__':
