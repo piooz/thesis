@@ -13,7 +13,11 @@ def get_redis_client() -> Redis:
     host = os.environ[REDIS_HOST_ENV]
     passwd = os.environ[REDIS_PASS_ENV]
     port = os.environ[REDIS_PORT_ENV]
-    return r.Redis(host=host, port=int(port), password=passwd)
+    return r.StrictRedis(
+        host=host,
+        port=int(port),
+        password=passwd,
+    )
 
 
 # class CacheService:

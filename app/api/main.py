@@ -8,8 +8,7 @@ from pandas import DataFrame
 from statsmodels.iolib.table import csv
 import pickle
 
-# from .. import algorithm as al
-from chenLiu.chenLiu import chen_liu as cl
+from chenLiu.chenLiu import chen_liu
 
 from .cache import RedisCache
 from .api_model_lib import *
@@ -18,9 +17,11 @@ from fastapi.middleware.cors import CORSMiddleware
 import csv
 import codecs
 import time
+import json
 
 app = FastAPI()
 redisService: RedisCache = RedisCache()
+logging.basicConfig(level=logging.INFO)
 
 
 def calc_request_hash(request: Request):
@@ -42,8 +43,9 @@ def cache_request(cache_service: RedisCache, request: Request, response_body):
 def check_cache(cache_service: RedisCache, request: Request):
     key = calc_request_hash(request)
     try:
-        response_body = pickle.loads(cache_service.read(key))
-        logging.info(response_body)
+        cached_response = cache_service.read(key)
+        response_body = pickle.loads(cached_response)
+        logging.info(f'Found cached request response key: {key}')
         return response_body
     except Exception as e:
         logging.warning(f'Failed to read key: {key} from cache service')
@@ -130,29 +132,44 @@ async def analyze_file(
 async def generate_ao(
     len: int, start_point: int, w: float, request: Request
 ) -> list[float]:
-
     cache = check_cache(redisService, request)
     if cache is not None:
+        logging.info('Found request in cache')
         return list[float](cache)
     else:
-        logging.info('dupa')
         array = effects.ao_effect(len, start_point, w).tolist()
         cache_request(redisService, request, array)
         return array
 
 
 @app.get('/ls_effect/')
-async def generate_ls(len: int, start_point: int, w: float) -> list[float]:
-    array = effects.ls_effect(len, start_point, w)
-    return array.tolist()
+async def generate_ls(
+    len: int, start_point: int, w: float, request: Request
+) -> list[float]:
+    cache = check_cache(redisService, request)
+    if cache is not None:
+        logging.info('Found request in cache')
+        return list[float](cache)
+    else:
+        logging.info('Not Found request in cache')
+        array = effects.ls_effect(len, start_point, w).tolist()
+        cache_request(redisService, request, array)
+        return array
 
 
 @app.get('/tc_effect/')
 async def generate_tc(
-    len: int, start_point: int, w: float, delta: float = 0.7
+    len: int, start_point: int, w: float, request: Request, delta: float = 0.7
 ) -> list[float]:
-    array = effects.tc_effect(len, start_point, w, delta)
-    return array.tolist()
+    cache = check_cache(redisService, request)
+    if cache is not None:
+        logging.info('Found request in cache')
+        return list[float](cache)
+    else:
+        logging.warning('Not Found request in cache')
+        array = effects.tc_effect(len, start_point, w, delta).tolist()
+        cache_request(redisService, request, array)
+    return array
 
 
 @app.post('/io_effect/')
@@ -162,16 +179,22 @@ async def generate_io(
     w: float,
     arparams: List[float],
     maparams: List[float],
+    request: Request,
 ) -> list[float]:
-    logging.debug(arparams)
-    array = effects.io_effect(
-        len,
-        start_point,
-        arparams,
-        maparams,
-        w,
-    )
-    return array.tolist()
+    cache = check_cache(redisService, request)
+    if cache is not None:
+        logging.info('Found request in cache')
+        return list[float](cache)
+    else:
+        array = effects.io_effect(
+            len,
+            start_point,
+            arparams,
+            maparams,
+            w,
+        )
+        cache_request(redisService, request, array)
+        return array.tolist()
 
 
 @app.get('/health/')
