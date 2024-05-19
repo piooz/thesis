@@ -10,6 +10,15 @@ services:
       CACHE_PORT: 6379
     ports:
       - 8080:80
+    develop:
+      watch:
+        - path: ./api
+          action: sync+restart
+          target: /code/api
+        - path: ./requirements.txt
+          action: rebuild
+          target: /requirements.txt
+
   cache:
     image: redis:7.2.4-alpine3.19
     volumes:

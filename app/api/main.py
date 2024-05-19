@@ -1,14 +1,12 @@
-from datetime import datetime
 import logging
 from typing import BinaryIO, List
-from uuid import uuid4
 from chenLiu import effects
-from fastapi import FastAPI, Request, Response, UploadFile
+from fastapi import FastAPI, Request, UploadFile
 from pandas import DataFrame
 from statsmodels.iolib.table import csv
 import pickle
 
-from chenLiu.chenLiu import chen_liu
+from chenLiu.chenLiu import chen_liu, effects_matrix
 
 from .cache import RedisCache
 from .api_model_lib import *
@@ -17,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 import csv
 import codecs
 import time
-import json
 
 app = FastAPI()
 redisService: RedisCache = RedisCache()
@@ -95,10 +92,36 @@ def prepare_data(
     return ls
 
 
-def prepare_raport(time, fit) -> Raport:
-    f = Fit(type='Arima Model', arparams=fit.arparams, maparams=fit.maparams)
-    raport = Raport(executionTime=time, fit=f)
-    return raport
+def df2Entries(df, fit, n) -> list:
+    matrix_df = effects_matrix(fit, df, 0.7, n)
+    outliers = []
+
+    for name in list(matrix_df):
+        index = int(name)
+        values = matrix_df[name].values.tolist()
+
+        outliers.append(
+            Effect(
+                type=(df['type'][index]),
+                omega=df['omega'][index],
+                tau=df['tau'][index],
+                starts=(int(name)),
+                values=values,
+            )
+        )
+
+    return outliers
+
+
+def prepare_analyze_report(df, fit, dataset_len, execution_time):
+    arima_fit = Fit(type='ARIMA', arparams=fit.arparams, maparams=fit.maparams)
+    effects = df2Entries(df, fit, dataset_len)
+    return AnalyzeResult(
+        outliers=len(df),
+        result=effects,
+        arimaFit=arima_fit,
+        executionTime=execution_time,
+    )
 
 
 def read_column_binary(file: BinaryIO, have_header: bool, col: int):
@@ -120,12 +143,28 @@ def read_column_binary(file: BinaryIO, have_header: bool, col: int):
 @app.post('/analyze/')
 async def analyze_file(
     file: UploadFile,
-    cval: float = 2,
+    cval: float = 2.0,
     have_header: bool = False,
     col: int = 0,
 ):
     data = read_column_binary(file.file, have_header, col)
-    return file
+    start_time = time.time()
+    (report, out_series, effect_series, arima_fit) = chen_liu(data, cval=cval)
+    end_time = time.time()
+    execution_time = end_time - start_time
+
+    if not isinstance(report, DataFrame):
+        return AnalyzeResult(
+            outliers=0,
+            result=[],
+            executionTime=execution_time,
+            arimaFit=None,
+        )
+    else:
+        result = prepare_analyze_report(
+            report, arima_fit, len(data), execution_time
+        )
+        return result
 
 
 @app.get('/ao_effect/')

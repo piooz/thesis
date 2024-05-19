@@ -1,7 +1,7 @@
 annotated-types==0.6.0
 anyio==4.3.0
 build==1.2.1
--e git+https://git@github.com/piooz/chenliu.git@03c59b56c279bf8f529392d25717deb692e0d884#egg=chenLiu
+-e git+https://git@github.com/piooz/chenliu.git@9d0b1d084e103ab039b6fb0dca3581165e7eeb6d#egg=chenLiu
 click==8.1.7
 contourpy==1.2.1
 cycler==0.12.1

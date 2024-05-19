@@ -1,6 +1,5 @@
+from datetime import time
 from pydantic import BaseModel
-from datetime import datetime, time
-from uuid import UUID
 
 
 class Fit(BaseModel):
@@ -20,13 +19,16 @@ class Entry(BaseModel):
     LS: float | None
 
 
-class Raport(BaseModel):
-    executionTime: time
-    fit: Fit
+class Effect(BaseModel):
+    type: str
+    omega: float
+    tau: float
+    starts: int
+    values: list[float]
 
 
 class AnalyzeResult(BaseModel):
-    id: UUID
-    time: datetime
-    data: list[Entry]
-    raport: Raport
+    outliers: int
+    executionTime: float
+    result: list[Effect]
+    arimaFit: Fit | None
