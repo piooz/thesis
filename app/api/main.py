@@ -1,19 +1,17 @@
 import logging
-from typing import BinaryIO, List
+from typing import List
 from chenLiu import effects
-from fastapi import FastAPI, Request, UploadFile
+from fastapi import FastAPI, Request, UploadFile, File
 from pandas import DataFrame
-from statsmodels.iolib.table import csv
 import pickle
 
 from chenLiu.chenLiu import chen_liu, effects_matrix
 
 from .cache import RedisCache
 from .api_model_lib import *
+from .csv_process import *
 
 from fastapi.middleware.cors import CORSMiddleware
-import csv
-import codecs
 import time
 
 app = FastAPI()
@@ -32,6 +30,7 @@ def cache_request(cache_service: RedisCache, request: Request, response_body):
     key = calc_request_hash(request)
     try:
         cache_service.push(str(key), pickle.dumps(response_body))
+        logging.info(f'Sucessful push {key} to cache database')
     except Exception as e:
         logging.warning(f'Failed to push key {key} to cache database')
         logging.warning(e)
@@ -123,48 +122,39 @@ def prepare_analyze_report(df, fit, dataset_len, execution_time):
         executionTime=execution_time,
     )
 
-
-def read_column_binary(file: BinaryIO, have_header: bool, col: int):
-    csv_reader = csv.reader(codecs.iterdecode(file, 'utf-8'))
-    data = []
-    if have_header:
-        next(csv_reader)
-
-    for row in csv_reader:
-        logging.debug(row)
-        if col < len(row):
-            data.append(float(row[col]))
-        else:
-            logging.warning(f'Row {row} does not have column {col}. Skipping.')
-
-    return data
-
-
 @app.post('/analyze/')
 async def analyze_file(
-    file: UploadFile,
+    request: Request,
+    file: UploadFile = File(...),
     cval: float = 2.0,
     have_header: bool = False,
     col: int = 0,
 ):
-    data = read_column_binary(file.file, have_header, col)
-    start_time = time.time()
-    (report, out_series, effect_series, arima_fit) = chen_liu(data, cval=cval)
-    end_time = time.time()
-    execution_time = end_time - start_time
-
-    if not isinstance(report, DataFrame):
-        return AnalyzeResult(
-            outliers=0,
-            result=[],
-            executionTime=execution_time,
-            arimaFit=None,
-        )
+    cache = check_cache(redisService, request)
+    if cache is not None:
+        logging.info('Found request in cache')
+        return cache
     else:
-        result = prepare_analyze_report(
-            report, arima_fit, len(data), execution_time
-        )
-        return result
+        data = read_column_binary(file.file, have_header, col)
+        start_time = time.time()
+        (report, out_series, effect_series, arima_fit) = chen_liu(data, cval=cval)
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+        if not isinstance(report, DataFrame):
+            result = AnalyzeResult(
+                outliers=0,
+                result=[],
+                executionTime=execution_time,
+                arimaFit=None,
+            )
+            cache_request(redisService, request, result)
+        else:
+            result = prepare_analyze_report(
+                report, arima_fit, len(data), execution_time
+            )
+            cache_request(redisService, request, result)
+            return result
 
 
 @app.get('/ao_effect/')
