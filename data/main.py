@@ -8,6 +8,7 @@ import statsmodels.tsa.arima.model as tsa
 import psutil
 import time
 import numpy as np
+import errno
 
 
 MODULE_DIR = os.path.dirname(__file__)
@@ -62,6 +63,15 @@ def plot_time_series_with_points(
     plt.legend()
 
     date = datetime.now().strftime('%d-%m-%Y-%H-%M-%S')
+
+    try:
+        os.mkdir("outfigures")
+    except OSError as e:
+        if e.errno == errno.EEXIST:
+            print('Directory exist')
+        else:
+            raise
+
     plt.savefig(f'outfigures/{dataset_name}-{date}.svg')
 
     print(df)
@@ -273,14 +283,14 @@ if __name__ == '__main__':
     with pd.option_context(
         'display.max_rows', None, 'display.max_columns', None
     ):
-        # testNile()   # passed
+        testNile()   # passed
         # test_cif()
         # test_iot_sensor_temp()
         # test_iot_sensor_humidity()
         # test_netflix()
         # test_ETD_temp()
         # # test_ETD_load()
-        test_weather()
+        # test_weather()
         # test_dominick10()
         # test_dominick0()
         # test_covid_poland()
